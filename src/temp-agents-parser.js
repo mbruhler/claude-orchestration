@@ -1,3 +1,6 @@
+// DEPRECATED: Old $name := {base: "agent"} syntax removed
+// This file will be refactored to support new temp agent system
+
 /**
  * Temporary Agents Parser
  *
@@ -5,11 +8,14 @@
  * into standard agent nodes with enhanced instructions.
  */
 
+/*
+// COMMENTED OUT: Old temp agent definition syntax - no longer supported
 /**
  * Parse temporary agent definitions from workflow syntax
  * @param {string} syntax - Raw workflow syntax
  * @returns {{registry: Map, cleanedSyntax: string}}
  */
+/*
 function extractTempAgentDefinitions(syntax) {
   const registry = new Map();
   let cleanedSyntax = syntax;
@@ -51,12 +57,15 @@ function extractTempAgentDefinitions(syntax) {
 
   return { registry, cleanedSyntax };
 }
+*/
 
+/*
 /**
  * Parse the content of a definition block
  * @param {string} content - Content inside the {...}
  * @returns {{base: string, prompt: string, model?: string}}
  */
+/*
 function parseDefinitionContent(content) {
   const definition = {};
 
@@ -88,13 +97,16 @@ function parseDefinitionContent(content) {
     return definition;
   }
 }
+*/
 
+/*
 /**
  * Expand temporary agent invocations into standard agent syntax
  * @param {string} syntax - Syntax with temp agents removed
  * @param {Map} registry - Temp agent definitions
  * @returns {string} Expanded syntax with standard agent syntax
  */
+/*
 function expandTempAgentInvocations(syntax, registry) {
   let expanded = syntax;
 
@@ -140,6 +152,7 @@ function expandTempAgentInvocations(syntax, registry) {
 
   return { expanded, replacements };
 }
+*/
 
 /**
  * Extract variable references from instructions
@@ -246,6 +259,7 @@ module.exports = {
   parseTempAgents,
   enhanceGraphWithTempAgents,
   extractVariableReferences,
-  extractTempAgentDefinitions,
-  expandTempAgentInvocations
+  // DEPRECATED - commented out:
+  // extractTempAgentDefinitions,
+  // expandTempAgentInvocations
 };
