@@ -1,0 +1,14 @@
+{
+  "workflow-socratic-designer": {
+    "file": "workflow-socratic-designer.md",
+    "description": "Guide users through Socratic questioning to refine workflow requirements",
+    "created": "2025-11-08",
+    "usageCount": 0
+  },
+  "workflow-syntax-designer": {
+    "file": "workflow-syntax-designer.md",
+    "description": "Design custom syntax elements with reuse-first approach",
+    "created": "2025-11-08",
+    "usageCount": 0
+  }
+}
