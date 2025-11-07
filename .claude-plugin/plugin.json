@@ -1,0 +1,16 @@
+{
+  "name": "orchestration",
+  "description": "Multi-agent workflow orchestration system with visual feedback, parallel execution, and interactive steering",
+  "version": "1.0.0",
+  "author": {
+    "name": "mbroler"
+  },
+  "keywords": [
+    "workflows",
+    "orchestration",
+    "multi-agent",
+    "parallel-execution",
+    "visualization",
+    "automation"
+  ]
+}

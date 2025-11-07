@@ -60,8 +60,8 @@ Transform natural language descriptions into structured workflow requirements th
 
 7. **Save as template**
    - Prompt for template details
-   - Save to ~/.claude/workflows/
-   - Offer global syntax promotion
+   - Save to examples/ directory in plugin
+   - Offer global syntax promotion to library/syntax/
 
 ## Question Patterns
 
@@ -117,10 +117,12 @@ AskUserQuestion({
 
 ## Context Sources
 
-- Templates: ~/.claude/workflows/*.flow
-- Examples: ~/.claude/plugins/repos/orchestration/docs/reference/examples.md
-- Global syntax: ~/.claude/orchestration/syntax/**/*.md
+- Templates: examples/*.flow (in plugin directory)
+- Examples: docs/reference/examples.md
+- Global syntax library: library/syntax/**/*.md
 - Best practices: docs/reference/best-practices.md
+
+All paths are relative to the plugin root directory.
 
 ## Tools Usage
 

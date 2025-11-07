@@ -23,8 +23,9 @@ Create intuitive, composable custom syntax elements following reuse-first princi
 
 2. **Check global syntax library**
    ```bash
-   grep -r "description" ~/.claude/orchestration/syntax/
+   grep -r "description" library/syntax/
    ```
+   (Search in plugin's library/syntax/ directory)
 
 3. **Check loaded templates**
    - Search Definitions sections
@@ -208,6 +209,8 @@ Return to Socratic designer:
   type: "action|operator|checkpoint|loop|condition|aggregator|guard|tool|mcp",
   name: "syntax-element-name",
   definition: "complete markdown content",
-  path: "syntax/<type>/<name>.md"
+  path: "library/syntax/<type>/<name>.md"
 }
 ```
+
+All syntax files are stored in the plugin's library/syntax/ directory.

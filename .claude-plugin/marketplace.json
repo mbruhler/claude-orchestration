@@ -1,0 +1,22 @@
+{
+  "name": "orchestration-marketplace",
+  "owner": {
+    "name": "mbroler"
+  },
+  "plugins": [
+    {
+      "name": "orchestration",
+      "source": "./",
+      "description": "Multi-agent workflow orchestration with visual feedback, parallel execution, and interactive control",
+      "version": "1.0.0",
+      "keywords": [
+        "workflows",
+        "orchestration",
+        "multi-agent",
+        "parallel-execution",
+        "visualization",
+        "automation"
+      ]
+    }
+  ]
+}
