@@ -495,6 +495,32 @@ Usage: @call:security-audit
 
 ---
 
+## Advanced Features
+
+### Variable Binding
+
+See [Variable Binding Reference](../reference/variable-binding.md) for complete documentation.
+
+### Negative Conditions
+
+Use `!` to negate conditions:
+```
+(if !variable)~> handle-false-case
+```
+
+### Custom Syntax
+
+Extend orchestration with domain-specific syntax. See [Custom Syntax Guide](./custom-syntax.md).
+
+## Creating Workflows
+
+- **From syntax:** Write workflow syntax directly
+- **From natural language:** Use `/orchestration:create` to describe workflow in plain language
+
+See [Natural Language Workflow Creation](../features/natural-language.md) for guided workflow creation.
+
+---
+
 ## Related Topics
 
 - **agents** - Details on agent invocation
