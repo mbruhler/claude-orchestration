@@ -1,6 +1,21 @@
 # Temporary Agents - Design Specification
 
-## Overview
+## New Architecture (2025-01-08)
+
+Temp agents are now full standalone agents, not wrappers:
+
+- **Old**: `$analyzer := {base: "Explore", prompt: "..."}`
+- **New**: Full `.md` files in `temp-agents/` folder
+
+Temp agents are:
+- Created automatically by workflow designer
+- Full agent definitions with detailed prompts
+- Ephemeral (deleted after workflow unless promoted)
+- Identical to defined agents except for persistence
+
+See [Agent Promotion](./agent-promotion.md) for converting temp to defined agents.
+
+## Overview (Legacy Documentation)
 
 Temporary agents allow you to define custom, workflow-specific agents inline using the `$` syntax. They are expanded at parse-time into standard agent nodes with enhanced instructions, and can pass state between each other through named variables.
 
