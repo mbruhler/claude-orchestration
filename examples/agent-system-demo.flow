@@ -1,0 +1,16 @@
+---
+name: agent-system-demo
+description: Demo of new agent system with temp agents and variable flow
+---
+
+Workflow:
+
+security-scanner:"Scan codebase for vulnerabilities":vulns ->
+vulnerability-fixer:"Fix {vulns}":fixed ->
+code-reviewer:"Review {fixed}":status
+
+---
+
+Note: This workflow uses temp agents that will be created by the workflow designer.
+The temp agents will have detailed prompts generated automatically.
+After execution, you'll be prompted to save useful agents as defined agents.
