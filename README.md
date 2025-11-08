@@ -7,6 +7,42 @@
 
 ---
 
+## Installation
+
+### 1. Add Plugin Marketplace
+
+First, add the orchestration marketplace to your Claude Code:
+
+```bash
+/plugin marketplace add mbruhler/claude-orchestration
+```
+
+### 2. Install the Plugin
+
+```bash
+/plugin install orchestration@mbruhler
+```
+
+Or use the interactive menu:
+
+```bash
+/plugin
+```
+
+Then select **"Browse Plugins"** → find **orchestration** → **Install**
+
+### 3. Verify Installation
+
+Check that the plugin is installed:
+
+```bash
+/help
+```
+
+You should see orchestration commands like `/orchestration:menu`, `/orchestration:init`, etc.
+
+---
+
 ## Quick Start
 
 ### 0. Import Your Custom Agents (Optional)

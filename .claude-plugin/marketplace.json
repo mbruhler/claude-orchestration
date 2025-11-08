@@ -1,22 +1,37 @@
 {
   "name": "orchestration-marketplace",
   "owner": {
-    "name": "mbroler"
+    "name": "mbroler",
+    "email": "contact@orchestration-plugin.dev"
+  },
+  "metadata": {
+    "description": "Claude Code plugin marketplace for workflow orchestration tools",
+    "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "orchestration",
       "source": "./",
-      "description": "Multi-agent workflow orchestration with visual feedback, parallel execution, and interactive control",
+      "description": "Multi-agent workflow orchestration with natural language creation, parallel execution, conditional flows, and visual progress tracking",
       "version": "1.0.0",
+      "author": {
+        "name": "Claude Orchestration Contributors"
+      },
+      "homepage": "https://github.com/mbruhler/claude-orchestration",
+      "repository": "https://github.com/mbruhler/claude-orchestration",
+      "license": "MIT",
       "keywords": [
         "workflows",
         "orchestration",
         "multi-agent",
         "parallel-execution",
         "visualization",
-        "automation"
-      ]
+        "automation",
+        "natural-language",
+        "agents",
+        "checkpoints"
+      ],
+      "category": "productivity"
     }
   ]
 }
