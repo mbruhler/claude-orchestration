@@ -321,6 +321,91 @@ AskUserQuestion({
 
 ---
 
+### Phase 7: Agent Promotion (if temp agents used)
+
+If the workflow used temp agents and completed successfully, offer to promote them to defined agents.
+
+#### Step 1: Detect Temp Agent Usage
+
+Check if any nodes used temp agents:
+```javascript
+const tempAgentsUsed = nodes.filter(n => n.agentSource === 'temp');
+if (tempAgentsUsed.length === 0) {
+  // Skip promotion flow
+  continue to phase 6;
+}
+```
+
+#### Step 2: Generate Smart Suggestions
+
+Use agent-promotion module:
+```javascript
+const agentPromotion = require('../src/agent-promotion');
+const tempAgentNames = tempAgentsUsed.map(n => n.agentType);
+const suggestions = agentPromotion.generatePromotionSuggestions(tempAgentNames);
+```
+
+#### Step 3: Present Batch Selection
+
+Use AskUserQuestion tool:
+```javascript
+const options = suggestions.map(s => ({
+  label: s.name,
+  description: s.reason
+}));
+
+AskUserQuestion({
+  questions: [{
+    question: "Select which temp agents to save as permanent defined agents:",
+    header: "Agent Promotion",
+    multiSelect: true,
+    options: options
+  }]
+});
+```
+
+Mark recommended agents as pre-selected in UI if possible.
+
+#### Step 4: Process Selections
+
+```javascript
+const selectedNames = // from user response
+const results = agentPromotion.processPromotions(selectedNames);
+
+// Show success message
+if (results.promoted.length > 0) {
+  console.log(`✓ Saved ${results.promoted.length} agents:`);
+  results.promoted.forEach(name => {
+    console.log(`  - ${name} → agents/${name}.md`);
+  });
+  console.log('These agents are now available for future workflows!');
+}
+
+// Show failures if any
+if (results.failed.length > 0) {
+  console.log('Failed to promote:');
+  results.failed.forEach(f => {
+    console.log(`  - ${f.name}: ${f.reason}`);
+  });
+}
+```
+
+#### Step 5: Cleanup Unselected Agents
+
+```javascript
+const deleted = agentPromotion.cleanupTempAgents(tempAgentNames, selectedNames);
+console.log(`Cleaned up ${deleted.length} temp agent(s)`);
+```
+
+#### Edge Cases
+
+- No temp agents: Skip this phase entirely
+- All recommendations are "not recommended": Show message "No reusable agents detected. All temp agents deleted."
+- User cancels: Delete all temp agents
+- Name conflicts: Handle in processPromotions (offer rename or skip)
+
+---
+
 ## State Management
 
 Maintain execution state throughout:
