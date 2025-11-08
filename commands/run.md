@@ -1,20 +1,70 @@
 ---
 description: Parse and execute inline workflow syntax
+deprecated: true
 ---
 
-# Orchestration Workflow Execution
+# ⚠️ DEPRECATED: Orchestration Workflow Execution
+
+**This command is deprecated.** Use the **executing-workflows** skill instead for better visualization, error handling, and progress tracking.
+
+The skill automatically activates when you provide workflow syntax or ask to run a workflow.
+
+## Migration Guide
+
+**Instead of:** `/orchestration:run step1 -> step2 -> step3`
+
+**Just provide syntax:**
+```flow
+step1:"task" -> step2:"task" -> step3:"task"
+```
+
+The `executing-workflows` skill will automatically activate and execute with full visualization and steering support.
+
+---
+
+## Legacy Usage (Still Works)
 
 Parse and execute a workflow defined using orchestration syntax.
 
 ## Arguments: {{ARGS}}
 
-The workflow syntax to execute.
+The workflow to execute. Can be provided in two formats:
+
+1. **Raw syntax** - Direct workflow operators (e.g., `step1 -> step2`)
+2. **Template format** - YAML frontmatter with `workflow` and optional `visualization` fields
 
 ## Execution Phases
 
+### Phase -1: Template Detection (if applicable)
+
+**Check for YAML frontmatter:**
+
+If input starts with `---`, it's a template with frontmatter:
+
+```javascript
+if (input.startsWith('---')) {
+  const { frontmatter, content } = parseYAMLFrontmatter(input)
+
+  // Extract fields
+  const visualization = frontmatter.visualization  // Static ASCII art
+  const workflow = frontmatter.workflow            // Raw workflow syntax
+
+  // Use workflow syntax from frontmatter, not content after ---
+  syntax = workflow
+
+  // Store visualization for Phase 2
+  staticVisualization = visualization
+}
+```
+
+**If no frontmatter detected, use input as-is for raw syntax.**
+
+---
+
 ### Phase 0: Pre-Parse (Temporary Agents)
 
-**Reference:** `docs/features/temporary-agents.md`, `src/temp-agents-parser.js`
+**Reference:** `~/.claude/plugins/repos/orchestration/docs/features/temporary-agents.md`
+**Registry:** `~/.claude/plugins/repos/orchestration/temp-agents/`
 
 If workflow contains temporary agent syntax (`$agent-name`):
 
@@ -57,7 +107,7 @@ Output: general-purpose:"Security expert\n\nScan auth code"
 
 ### Phase 1: Parse
 
-**Reference:** `docs/core/parser.md`
+**Reference:** `~/.claude/plugins/repos/orchestration/docs/core/parser.md`
 
 1. **Tokenize** - Split by operators: `->`, `||`, `~>`, `@`, `[...]`
 2. **Build AST** - Parse tokens into tree (precedence: `[]` > `||` > `->` > `~>`)
@@ -95,9 +145,17 @@ Output: general-purpose:"Security expert\n\nScan auth code"
 
 ### Phase 2: Visualize
 
-**Reference:** `docs/core/visualizer.md`
+**Reference:** `~/.claude/plugins/repos/orchestration/docs/core/visualizer.md`
 
-Display ASCII art visualization:
+**Static Visualization Check:**
+Before generating a dynamic visualization, check if a static visualization was provided:
+- Templates can include a `visualization` field in their YAML frontmatter
+- If present, display the static visualization directly without modification
+- Static visualizations ensure consistent display across all executions
+- Skip dynamic generation when static visualization is available
+
+**Dynamic Visualization:**
+If no static visualization is provided, generate and display ASCII art visualization:
 
 ```
 ╔════════════════════════════════════════════╗
@@ -131,7 +189,8 @@ Display ASCII art visualization:
 
 ### Phase 3: Execute
 
-**Reference:** `docs/core/executor.md`, `src/temp-agents-executor.js`
+**Reference:** `~/.claude/plugins/repos/orchestration/docs/core/executor.md`
+**Temp Agents:** `~/.claude/plugins/repos/orchestration/temp-agents/`
 
 **Algorithm:**
 1. Initialize all nodes to ○ pending
@@ -150,12 +209,36 @@ Display ASCII art visualization:
 4. Display final results (including variable summary if temp agents used)
 
 **Agent Mapping:**
-- `explore` → `Explore` subagent
-- `general-purpose` → `general-purpose` subagent
-- `code-reviewer` → `superpowers:code-reviewer` subagent
-- `implementation-architect` → `implementation-architect` subagent
-- `expert-code-implementer` → `expert-code-implementer` subagent
-- Other agents → Use subagent_type as specified
+
+Plugin agents MUST be prefixed with `orchestration:` namespace:
+- `explore` → `Explore` subagent (built-in)
+- `general-purpose` → `general-purpose` subagent (built-in)
+- `code-reviewer` → `superpowers:code-reviewer` subagent (built-in)
+- `implementation-architect` → `implementation-architect` subagent (built-in)
+- `expert-code-implementer` → `expert-code-implementer` subagent (built-in)
+- `workflow-socratic-designer` → `orchestration:workflow-socratic-designer` subagent (plugin)
+- `workflow-syntax-designer` → `orchestration:workflow-syntax-designer` subagent (plugin)
+- Other defined agents from `agents/registry.json` → `orchestration:{agent-name}` (plugin)
+- Temp agents (`$name`) → `orchestration:{agent-name}` (plugin, ephemeral)
+
+**Namespace Rules:**
+1. **Built-in agents**: No prefix (Explore, general-purpose, code-reviewer, etc.)
+2. **Plugin agents**: Always prefix with `orchestration:`
+3. **Temp agents**: Automatically prefixed with `orchestration:` when loaded from temp-agents/
+4. **Agent resolution**: Check built-ins first, then try with `orchestration:` prefix
+
+**Example:**
+```javascript
+// In workflow syntax:
+$news-analyzer:"Analyze news articles"
+
+// At execution time:
+Task({
+  subagent_type: "orchestration:news-analyzer",  // Prefixed!
+  description: "Temp agent: news-analyzer",
+  prompt: "..."
+})
+```
 
 **Parallel Execution:**
 Launch all parallel agents in single response using multiple Task calls.
@@ -204,7 +287,7 @@ When reaching `@label`:
 
 ### Phase 4: Steering
 
-**Reference:** `docs/core/steering.md`
+**Reference:** `~/.claude/plugins/repos/orchestration/docs/core/steering.md`
 
 At checkpoints and after errors, provide control:
 
@@ -247,7 +330,7 @@ AskUserQuestion({
 
 ### Phase 5: Error Recovery
 
-**Reference:** `docs/features/error-handling.md`
+**Reference:** `~/.claude/plugins/repos/orchestration/docs/features/error-handling.md`
 
 When agent fails:
 
@@ -338,11 +421,13 @@ if (tempAgentsUsed.length === 0) {
 
 #### Step 2: Generate Smart Suggestions
 
-Use agent-promotion module:
+Analyze temp agents for reusability:
 ```javascript
-const agentPromotion = require('../src/agent-promotion');
+// Analyze which temp agents are generic vs workflow-specific
 const tempAgentNames = tempAgentsUsed.map(n => n.agentType);
-const suggestions = agentPromotion.generatePromotionSuggestions(tempAgentNames);
+const suggestions = analyzeAgentsForPromotion(tempAgentNames);
+
+// Generic agents should be promoted, workflow-specific ones should be deleted
 ```
 
 #### Step 3: Present Batch Selection
@@ -406,12 +491,84 @@ console.log(`Cleaned up ${deleted.length} temp agent(s)`);
 
 ---
 
+### Phase 8: Cleanup Temporary Files
+
+**IMPORTANT**: After workflow completion (regardless of success/failure), clean up ALL temporary files.
+
+#### What to Clean
+
+1. **Temporary Agent Files** (if not promoted in Phase 7)
+   - Location: `~/.claude/plugins/repos/orchestration/temp-agents/*.md`
+   - Delete ALL `.md` files that were created for this workflow
+   - Keep only pre-existing temp agents (if any)
+
+2. **Temporary JSON Files**
+   - Location: `~/.claude/plugins/repos/orchestration/examples/*.json`
+   - Delete ALL `.json` files (these are intermediate data files)
+   - Keep only `.flow` workflow templates
+
+#### Implementation
+
+```javascript
+// After Phase 7 (Agent Promotion) or if no temp agents were used
+
+async function cleanupTemporaryFiles() {
+  const cleanupTasks = [];
+
+  // 1. Clean up temp agents (already handled in Phase 7 if promoted)
+  // If Phase 7 was skipped (no temp agents), this does nothing
+
+  // 2. Clean up ALL JSON files in examples/
+  const jsonFiles = glob('~/.claude/plugins/repos/orchestration/examples/*.json');
+  for (const file of jsonFiles) {
+    await deleteFile(file);
+    cleanupTasks.push(file);
+  }
+
+  // 3. Report cleanup
+  if (cleanupTasks.length > 0) {
+    console.log(`\n🧹 Cleaned up ${cleanupTasks.length} temporary file(s):`);
+    cleanupTasks.forEach(file => {
+      console.log(`   - ${basename(file)}`);
+    });
+  }
+}
+
+// Execute cleanup
+await cleanupTemporaryFiles();
+```
+
+#### When to Clean
+
+- **Always**: After workflow completion (success or failure)
+- **Exception**: Don't delete files if user explicitly requests to keep them
+- **Timing**: After agent promotion phase, before final completion message
+
+#### User Notification
+
+```
+╔════════════════════════════════════════════╗
+║  Workflow Complete                         ║
+╠════════════════════════════════════════════╣
+║  Total steps: 12                           ║
+║  Completed: 11 ✓                           ║
+║  Duration: 3m 45s                          ║
+╠════════════════════════════════════════════╣
+║  🧹 Cleanup: 3 temporary files removed     ║
+╠════════════════════════════════════════════╣
+║  Next steps:                               ║
+╚════════════════════════════════════════════╝
+```
+
+---
+
 ## State Management
 
 Maintain execution state throughout:
 ```javascript
 {
   workflow: "original syntax",
+  visualization: "...",   // Optional static ASCII art from template
   graph: {
     nodes,
     edges,
@@ -446,20 +603,30 @@ Maintain execution state throughout:
 ## Documentation References
 
 **Core Implementation:**
-- `docs/core/parser.md` - Syntax parsing details
-- `docs/core/executor.md` - Execution algorithm
-- `docs/core/visualizer.md` - Rendering system
-- `docs/core/steering.md` - Interactive control
-- `src/temp-agents-parser.js` - Temporary agents parsing
-- `src/temp-agents-executor.js` - Variable interpolation
+- `~/.claude/plugins/repos/orchestration/docs/core/parser.md` - Syntax parsing details
+- `~/.claude/plugins/repos/orchestration/docs/core/executor.md` - Execution algorithm
+- `~/.claude/plugins/repos/orchestration/docs/core/visualizer.md` - Rendering system
+- `~/.claude/plugins/repos/orchestration/docs/core/steering.md` - Interactive control
 
 **Features:**
-- `docs/features/temporary-agents.md` - Temporary agent system ($agent syntax)
-- `docs/features/templates.md` - Template system
-- `docs/features/error-handling.md` - Recovery strategies
-- `docs/features/custom-definitions.md` - Extension system
+- `~/.claude/plugins/repos/orchestration/docs/features/temporary-agents.md` - Temporary agent system ($agent syntax)
+- `~/.claude/plugins/repos/orchestration/docs/features/defined-agents.md` - Defined agent system
+- `~/.claude/plugins/repos/orchestration/docs/features/agent-promotion.md` - Agent promotion workflow
+- `~/.claude/plugins/repos/orchestration/docs/features/templates.md` - Template system
+- `~/.claude/plugins/repos/orchestration/docs/features/error-handling.md` - Recovery strategies
+- `~/.claude/plugins/repos/orchestration/docs/features/custom-definitions.md` - Extension system
 
 **Reference:**
-- `docs/reference/syntax.md` - Complete syntax specification
+- `~/.claude/plugins/repos/orchestration/docs/reference/syntax.md` - Complete syntax specification
+- `~/.claude/plugins/repos/orchestration/docs/reference/temp-agents-syntax.md` - Temporary agent syntax
+- `~/.claude/plugins/repos/orchestration/docs/reference/best-practices.md` - Guidelines and limitations
+
+**Examples and Templates:**
 - `~/.claude/plugins/repos/orchestration/examples/` - Example workflows directory
-- `docs/reference/best-practices.md` - Guidelines and limitations
+- `~/.claude/plugins/repos/orchestration/examples/README.md` - Template documentation
+
+**Agent System:**
+- `~/.claude/plugins/repos/orchestration/agents/registry.json` - Defined agents registry
+- `~/.claude/plugins/repos/orchestration/agents/workflow-socratic-designer.md` - Socratic workflow designer
+- `~/.claude/plugins/repos/orchestration/agents/workflow-syntax-designer.md` - Syntax designer
+- `~/.claude/plugins/repos/orchestration/temp-agents/` - Temporary agent definitions

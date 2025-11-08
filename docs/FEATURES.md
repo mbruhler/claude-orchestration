@@ -5,13 +5,11 @@ Complete index of orchestration plugin features.
 ## Core Features
 
 ### Workflow Execution
-- [Workflow Syntax](topics/syntax.md)
-- [Agents](topics/agents.md)
-- [Parallel Execution](topics/parallel.md)
-- [Conditionals](topics/conditionals.md)
-- [Loops and Retry](topics/loops.md)
-- [Checkpoints](topics/checkpoints.md)
-- [Subgraphs](topics/subgraphs.md)
+- [Workflow Syntax](topics/syntax.md) - Complete syntax guide
+- [Syntax Reference](reference/syntax.md) - Quick reference card (operators, agents, patterns)
+- [Defined Agents](features/defined-agents.md) - Reusable agent definitions
+- [Temporary Agents](features/temporary-agents.md) - Inline agent definitions
+- [Variable Binding](reference/variable-binding.md) - Conditional variables and negative conditions
 
 ### Templates
 - [Template System](features/templates.md)
@@ -22,6 +20,26 @@ Complete index of orchestration plugin features.
 - [Error Recovery](features/error-handling.md)
 - [Retry Patterns](features/error-handling.md#retry-patterns)
 - [Rollback Strategies](features/error-handling.md#rollback)
+
+## Core Implementation
+
+Internal implementation documentation for developers and advanced users.
+
+### Workflow Engine
+- [Parser](core/parser.md) - Syntax parsing and AST generation
+- [Executor](core/executor.md) - Workflow execution engine
+- [Visualizer](core/visualizer.md) - ASCII visualization system
+- [Steering](core/steering.md) - Interactive control and checkpoints
+
+### Temporary Agents System
+- [Temp Agents Parser](features/temporary-agents.md#parsing) - Parse-time transformation
+- [Temp Agents Executor](features/temporary-agents.md#execution) - Variable interpolation and output capture
+- [Temp Agents Directory](../temp-agents/) - Defined temp agents
+
+**Available Temp Agents:**
+- [Config Scanner](../temp-agents/config-scanner.md) - Configuration file analyzer
+- [Reference Updater](../temp-agents/reference-updater.md) - Documentation reference specialist
+- [Completeness Validator](../temp-agents/completeness-validator.md) - Structure validation specialist
 
 ## Advanced Features
 
@@ -48,7 +66,43 @@ Complete index of orchestration plugin features.
 
 ### Examples
 - [Examples Gallery](reference/examples.md)
+- [Template Workflows](../examples/README.md)
 - [Best Practices](reference/best-practices.md)
+
+### Agent System
+- [Agent Registry](../agents/registry.json) - All defined agents
+- [Temporary Agents Directory](../temp-agents/) - Active temp agents
+- [Temp Agent Syntax](reference/temp-agents-syntax.md) - Syntax reference
+
+### Library Syntax
+
+Custom syntax definitions available globally across all workflows.
+
+**Actions** (Reusable workflow fragments):
+- [Plugin Deep Explore](../library/syntax/actions/plugin-deep-explore.md)
+- [Find JSX Strings](../library/syntax/actions/find-jsx-strings.md)
+- [Generate i18n Key](../library/syntax/actions/generate-i18n-key.md)
+- [Update Translation Files](../library/syntax/actions/update-translation-files.md)
+
+**Conditions** (Custom conditionals):
+- [Critical Issues](../library/syntax/conditions/critical-issues.md)
+- [Improvements Found](../library/syntax/conditions/improvements-found.md)
+
+**Checkpoints** (Named review points):
+- [Security Gate](../library/syntax/checkpoints/security-gate.md)
+
+**Guards** (Pre-execution validation):
+- [Require Clean Working Tree](../library/syntax/guards/require-clean-working-tree.md)
+
+See [Custom Definitions](features/custom-definitions.md) for creating your own library syntax elements.
+
+### Agents
+- [Defined Agents](features/defined-agents.md) - Reusable agent definitions
+- [Temporary Agents](features/temporary-agents.md) - Inline agent definitions
+- [Agent Promotion](features/agent-promotion.md) - Converting temp to defined agents
+- [Agent Registry](../agents/registry.json) - Available defined agents
+- [Socratic Designer](../agents/workflow-socratic-designer.md) - Natural language workflow creation
+- [Syntax Designer](../agents/workflow-syntax-designer.md) - Custom syntax element design
 
 ### Commands
 - `/orchestration:create` - Create from natural language

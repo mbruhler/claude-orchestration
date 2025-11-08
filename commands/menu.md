@@ -19,6 +19,7 @@ AskUserQuestion({
     header: "Menu",
     multiSelect: false,
     options: [
+      {label: "Import agents", description: "Import custom agents from Claude Code"},
       {label: "Create from description", description: "Natural language workflow creation"},
       {label: "New workflow", description: "Create workflow from syntax"},
       {label: "Load template", description: "Execute saved flow"},
@@ -31,6 +32,11 @@ AskUserQuestion({
 ```
 
 ## Handler Actions
+
+### Import agents
+- Execute `/orchestration:init`
+- Imports custom agents from ~/.claude/agents/ to orchestration plugin
+- Makes them available for use in workflows with orchestration: namespace
 
 ### Create from description
 - Execute `/orchestration:create`
@@ -79,7 +85,7 @@ AskUserQuestion({
 ```
 
 #### List all syntax
-- Use Glob: `library/syntax/**/*.md`
+- Use Glob: `~/.claude/plugins/repos/orchestration/library/syntax/**/*.md`
 - Read frontmatter from each file
 - Display table:
   ```
@@ -102,7 +108,7 @@ AskUserQuestion({
 
 #### Search syntax
 - Ask for search term
-- Use Grep to search descriptions and content in `library/syntax/`
+- Use Grep to search descriptions and content in `~/.claude/plugins/repos/orchestration/library/syntax/`
 - Display matching syntax elements
 - Allow viewing full content
 - Return to syntax submenu

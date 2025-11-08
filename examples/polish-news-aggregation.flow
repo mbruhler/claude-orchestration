@@ -1,0 +1,25 @@
+# Polish News Aggregation and Topic Clustering Workflow
+# Fetches latest news from Polish websites, deduplicates, clusters by topic, and creates visualization graph
+#
+# Required temp agents: rss-fetcher, web-scraper, news-deduplicator, topic-clusterer, graph-builder
+# Sources: Onet, WP, Interia, TVN24, Polsat News, TVP, Gazeta Wyborcza, Rzeczpospolita
+
+# Phase 1: Parallel Data Collection (with RSS-first strategy)
+$rss-fetcher:"Fetch RSS feeds from Onet, WP, Interia, TVN24, Polsat News, TVP, Gazeta Wyborcza, Rzeczpospolita. For each source, try RSS endpoint first. Return articles with: title, url, source, published_date, description, content_snippet. Continue on individual source failures.":rss_articles ||
+
+$web-scraper:"For sources where RSS failed, scrape directly from homepage. Extract: title, url, source, published_date, description, content. Handle anti-scraping measures. Return same schema as RSS. Skip sources that completely fail.":scraped_articles ||
+
+# Phase 2: Merge Results
+general-purpose:"Merge {rss_articles} and {scraped_articles} into single collection. Preserve source attribution and timestamps. Count total articles collected and sources succeeded/failed. Report: total_articles, sources_successful, sources_failed.":all_articles ->
+
+# Phase 3: Deduplication
+$news-deduplicator:"Analyze {all_articles} for duplicates. Use similarity matching: exact URL matches, title similarity >85%, content similarity >70%. Group duplicates together. Keep newest version or most complete version. Return: unique_articles, duplicate_groups, dedup_stats.":unique_articles ->
+
+# Phase 4: Topic Clustering
+$topic-clusterer:"Analyze {unique_articles} and group into topic clusters. Use semantic similarity, keyword extraction, entity recognition. Identify themes like: politics, economy, sports, technology, culture, international, crime, weather, etc. Each article can belong to multiple topics. Return: clustered_articles with topic_labels, cluster_confidence.":clustered_data ->
+
+# Phase 5: Graph Construction
+$graph-builder:"Create topic graph from {clustered_data}. Nodes: topic clusters with size based on article count. Edges: shared entities/themes between clusters. Include metadata: timestamp, sources_used, total_articles. Format as JSON graph structure with nodes and edges. Return: graph_data.":news_graph ->
+
+# Phase 6: Final Report
+general-purpose:"Generate final report combining {news_graph} and collection stats. Include: 1) Visual graph representation (JSON format for D3.js), 2) Topic summaries with article links, 3) Collection stats (sources, articles, duplicates removed), 4) Timestamp and data freshness. Format as markdown with embedded graph visualization.":final_report

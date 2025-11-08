@@ -1,13 +1,20 @@
 {
+  "$schema": {
+    "description": "Registry of defined agents in the orchestration plugin",
+    "namespace": "orchestration:",
+    "usage": "All agents in this registry are accessed via 'orchestration:{agent-name}' when used as subagent_type in Task tool"
+  },
   "workflow-socratic-designer": {
     "file": "workflow-socratic-designer.md",
     "description": "Guide users through Socratic questioning to refine workflow requirements",
+    "namespace": "orchestration:workflow-socratic-designer",
     "created": "2025-11-08",
     "usageCount": 0
   },
   "workflow-syntax-designer": {
     "file": "workflow-syntax-designer.md",
     "description": "Design custom syntax elements with reuse-first approach",
+    "namespace": "orchestration:workflow-syntax-designer",
     "created": "2025-11-08",
     "usageCount": 0
   }

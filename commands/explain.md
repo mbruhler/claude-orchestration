@@ -1,8 +1,24 @@
 ---
 description: Detailed topic documentation for orchestration features
+deprecated: true
 ---
 
-# Orchestration Topic Documentation
+# ⚠️ DEPRECATED: Orchestration Topic Documentation
+
+**This command is deprecated.** Skills now contain embedded documentation with progressive disclosure.
+
+## Migration Guide
+
+Documentation is now integrated into skills:
+- **creating-workflows** skill - Workflow creation docs
+- **executing-workflows** skill - Execution and syntax docs
+- **managing-agents** skill - Agent lifecycle docs
+- **designing-syntax** skill - Custom syntax docs
+- **debugging-workflows** skill - Debugging guides
+
+---
+
+## Legacy Usage (Still Works)
 
 Provide detailed documentation on specific orchestration topics.
 
@@ -10,16 +26,25 @@ Provide detailed documentation on specific orchestration topics.
 
 ## Available Topics
 
-- **syntax** - Operators and grammar
-- **agents** - Agent invocation
-- **parallel** - Parallel execution
-- **conditionals** - Conditional flow
-- **loops** - Retry patterns
-- **checkpoints** - Pause points
-- **subgraphs** - Nested flows
-- **templates** - Template system
-- **custom** - Custom definitions
-- **error-handling** - Recovery strategies
+**Core Topics (docs/topics/):**
+- **syntax** - Complete syntax guide (operators, agents, patterns)
+- **custom-syntax** - Custom syntax elements and definitions
+
+**Features (docs/features/):**
+- **natural-language** - Natural language workflow creation
+- **templates** - Template system and parameter substitution
+- **error-handling** - Error recovery strategies
+- **defined-agents** - Reusable agent definitions
+- **temporary-agents** - Inline agent definitions ($agent syntax)
+- **agent-promotion** - Converting temp to defined agents
+- **custom-definitions** - Extension system
+
+**Reference (docs/reference/):**
+- **syntax** - Quick reference card
+- **examples** - Examples gallery
+- **best-practices** - Guidelines and patterns
+- **variable-binding** - Conditional variables
+- **temp-agents-syntax** - Temporary agent syntax reference
 
 ## Handle Topic Selection
 
@@ -34,16 +59,16 @@ AskUserQuestion({
     header: "Topic",
     multiSelect: false,
     options: [
-      {label: "syntax", description: "Operators and grammar"},
-      {label: "agents", description: "Agent invocation"},
-      {label: "parallel", description: "Parallel execution"},
-      {label: "conditionals", description: "Conditional flow"},
-      {label: "loops", description: "Retry patterns"},
-      {label: "checkpoints", description: "Pause points"},
-      {label: "subgraphs", description: "Nested flows"},
+      {label: "syntax", description: "Complete syntax guide"},
+      {label: "custom-syntax", description: "Custom syntax elements"},
+      {label: "natural-language", description: "Natural language creation"},
       {label: "templates", description: "Template system"},
-      {label: "custom", description: "Custom definitions"},
-      {label: "error-handling", description: "Recovery strategies"}
+      {label: "defined-agents", description: "Reusable agents"},
+      {label: "temporary-agents", description: "Inline agents ($agent)"},
+      {label: "agent-promotion", description: "Temp to defined agents"},
+      {label: "error-handling", description: "Error recovery"},
+      {label: "examples", description: "Examples gallery"},
+      {label: "best-practices", description: "Guidelines and patterns"}
     ]
   }]
 })
@@ -53,8 +78,17 @@ AskUserQuestion({
 
 If {{ARGS}} contains a topic name, load the corresponding documentation:
 
+**Available topic files:**
+- Core topics: `~/.claude/plugins/repos/orchestration/docs/topics/${topic}.md`
+- Features: `~/.claude/plugins/repos/orchestration/docs/features/${topic}.md`
+- Reference: `~/.claude/plugins/repos/orchestration/docs/reference/${topic}.md`
+
 ```javascript
+// Try topics directory first
 Read(`~/.claude/plugins/repos/orchestration/docs/topics/${topic}.md`)
+
+// If not found, try features directory
+// If not found, try reference directory
 ```
 
 Display the full content to the user.

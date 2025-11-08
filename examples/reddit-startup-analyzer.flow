@@ -1,0 +1,292 @@
+---
+name: "Reddit Startup Idea Analyzer"
+description: |
+  Automated market validation workflow that discovers and analyzes startup ideas from Reddit.
+  This template fetches trending posts from startup-related subreddits, performs comprehensive
+  competition research in parallel batches, and generates a multi-factor rating system to identify
+  the most promising opportunities.
+
+  The workflow integrates Reddit's API via PRAW to collect ideas, uses temporary Python scripts
+  for web scraping and patent searches, and employs a human-in-the-loop review process with
+  automatic refetch capabilities when ideas are rejected. Each idea is scored across six dimensions:
+  Overall potential, Competition level, Implementation complexity, Market size, Monetization
+  potential, and Feasibility.
+
+  Perfect for entrepreneurs, product managers, and investors seeking validated startup opportunities
+  with low competition and high market potential. The parallel batch processing enables efficient
+  analysis of multiple ideas simultaneously while maintaining thorough research depth.
+author: "orchestration"
+version: "1.0"
+tags: ["reddit", "startup-analysis", "competition-research", "market-validation", "temp-scripts"]
+workflow: |
+  # Reddit Startup Idea Analyzer - Market Validation Workflow
+
+  # Configuration (customize these)
+  $REDDIT_CLIENT_ID := "{{REDDIT_CLIENT_ID}}"
+  $REDDIT_CLIENT_SECRET := "{{REDDIT_CLIENT_SECRET}}"
+  $NUM_IDEAS := "{{NUM_IDEAS:10}}"
+  $SUBREDDITS := "{{SUBREDDITS:startup_ideas,SomebodyMakeThis,Entrepreneur,Business_Ideas}}"
+
+  # Step 1: Fetch Reddit posts
+  general-purpose:"Create Python script using PRAW to fetch $NUM_IDEAS hot posts from $SUBREDDITS subreddits. Use client_id=$REDDIT_CLIENT_ID and client_secret=$REDDIT_CLIENT_SECRET. Filter out meta/sticky posts. Return JSON array with: title, selftext, url, score, subreddit, post_id. Save as temp-scripts/reddit_fetcher.py and execute.":reddit_posts ->
+
+  # Step 2: Parallel competition analysis (batch of 10)
+  [
+    general-purpose:"Analyze post 1-2 from {reddit_posts} with temp script for competition research: Google search, patent check, domain availability, ProductHunt/competitors. Save as temp-scripts/analyze_batch_1.py":batch_1_results ||
+    general-purpose:"Analyze post 3-4 from {reddit_posts} with temp script for competition research":batch_2_results ||
+    general-purpose:"Analyze post 5-6 from {reddit_posts} with temp script for competition research":batch_3_results ||
+    general-purpose:"Analyze post 7-8 from {reddit_posts} with temp script for competition research":batch_4_results ||
+    general-purpose:"Analyze post 9-10 from {reddit_posts} with temp script for competition research":batch_5_results
+  ] ->
+
+  # Step 3: Generate ratings table
+  general-purpose:"Consolidate all analyses ({batch_1_results}, {batch_2_results}, {batch_3_results}, {batch_4_results}, {batch_5_results}) and rate each idea on: Overall (1-10), Competition (1-10), Complexity (1-10), Market Size (1-10), Monetization (1-10), Feasibility (1-10). Create markdown table with: title, description, ratings, competitors, patent risk, domain availability. Filter out meta/discussion posts.":ratings_table ->
+
+  # Step 4: Manual review checkpoint
+  @review-ideas:"
+  ## Startup Ideas Analysis
+
+  {ratings_table}
+
+  Review all ideas. Type 'approve all' to accept, or list numbers to ban (e.g., '1, 3, 7') to fetch replacements.
+  ":review_decision ->
+
+  # Step 5: Conditional refetch if ideas banned
+  (if review_decision contains ban or numbers)~>
+    general-purpose:"Count banned ideas in {review_decision}. Fetch replacements from Reddit excluding {reddit_posts}. Repeat competition analysis.":new_analysis ->
+    @final-review:"Updated table with replacements: {new_analysis}" ->
+
+  # Step 6: Final report
+  general-purpose:"Create executive summary with top 3 opportunities, key insights, and strategic recommendations based on final approved ideas."
+visualization: |
+  ╔══════════════════════════════════════════════════════════╗
+  ║  Reddit Startup Idea Analyzer                            ║
+  ╠══════════════════════════════════════════════════════════╣
+  ║                                                          ║
+  ║            [Fetch Reddit Posts] ○                        ║
+  ║                     │                                    ║
+  ║       ┌─────────────┼─────────────┐                      ║
+  ║       │             │             │                      ║
+  ║  [Batch 1-2] ○ [Batch 3-4] ○ [Batch 5-6] ○               ║
+  ║       │             │             │                      ║
+  ║       └─────────────┼─────────────┘                      ║
+  ║                     │                                    ║
+  ║          [Generate Ratings Table] ○                      ║
+  ║                     │                                    ║
+  ║              [@Review Ideas] ○                           ║
+  ║                     │                                    ║
+  ║           [Refetch if Needed] ○                          ║
+  ║                     │                                    ║
+  ║             [Final Report] ○                             ║
+  ║                                                          ║
+  ╠══════════════════════════════════════════════════════════╣
+  ║ Features:                                                ║
+  ║  • Reddit API integration with PRAW                      ║
+  ║  • Parallel competition analysis (5 batches)             ║
+  ║  • Patent, domain, competitor checks via temp scripts    ║
+  ║  • 6-metric rating system                                ║
+  ║  • Manual review with auto-refetch loop                  ║
+  ╚══════════════════════════════════════════════════════════╝
+---
+
+# Reddit Startup Idea Analyzer Template
+
+## Overview
+
+This workflow template automates the discovery and validation of startup ideas from Reddit. It combines API integration, parallel processing, and human review to identify high-potential opportunities with minimal competition.
+
+## Prerequisites
+
+### Reddit API Credentials
+1. Visit https://www.reddit.com/prefs/apps
+2. Click "Create App" or "Create Another App"
+3. Select "script" as the app type
+4. Note your `client_id` (under app name) and `client_secret`
+
+### Python Dependencies
+The workflow automatically creates temp scripts that require:
+- `praw` - Reddit API wrapper
+- `requests` - HTTP library for web scraping
+- `beautifulsoup4` - HTML parsing (optional, for advanced scraping)
+
+## Usage
+
+### Basic Usage
+```bash
+/orchestration:template reddit-startup-analyzer
+```
+
+When prompted, provide:
+- **REDDIT_CLIENT_ID**: Your Reddit app client ID
+- **REDDIT_CLIENT_SECRET**: Your Reddit app client secret
+- **NUM_IDEAS** (optional): Number of ideas to fetch (default: 10)
+- **SUBREDDITS** (optional): Comma-separated subreddit list (default: startup_ideas,SomebodyMakeThis,Entrepreneur,Business_Ideas)
+
+### Custom Configuration Example
+```
+REDDIT_CLIENT_ID: abc123xyz
+REDDIT_CLIENT_SECRET: secret456def
+NUM_IDEAS: 15
+SUBREDDITS: startups,SaaS,indiebiz,buildinpublic
+```
+
+## Workflow Steps
+
+### 1. Reddit Post Fetching
+Creates and executes a Python script using PRAW to:
+- Authenticate with Reddit API
+- Fetch hot posts from specified subreddits
+- Filter out meta posts, sticky posts, and announcements
+- Extract title, description, URL, score, and metadata
+- Return structured JSON array
+
+### 2. Parallel Competition Analysis
+Splits ideas into 5 parallel batches (2 ideas each) for concurrent analysis:
+- **Google Search**: Check for existing solutions and competitors
+- **Patent Search**: Identify potential IP conflicts
+- **Domain Availability**: Check .com/.io/.app domains
+- **ProductHunt/Competitors**: Find similar products in launch databases
+
+Each batch runs independently via temporary Python scripts for maximum efficiency.
+
+### 3. Rating Table Generation
+Consolidates all research into a comprehensive markdown table with 6-factor scoring:
+- **Overall Score** (1-10): Holistic opportunity assessment
+- **Competition Level** (1-10): Inverse score (1=high competition, 10=blue ocean)
+- **Complexity** (1-10): Implementation difficulty
+- **Market Size** (1-10): Total addressable market estimate
+- **Monetization** (1-10): Revenue generation potential
+- **Feasibility** (1-10): Technical and resource viability
+
+### 4. Manual Review Checkpoint
+Presents the ratings table for human review. Options:
+- Type "approve all" to accept all ideas and proceed
+- List numbers to ban (e.g., "1, 3, 7") to trigger refetch
+- Add comments for additional context
+
+### 5. Conditional Refetch Loop
+If ideas are rejected:
+- Calculates number of banned ideas
+- Fetches replacement posts from Reddit
+- Excludes previously analyzed posts
+- Re-runs competition analysis on new ideas
+- Presents updated table for final review
+
+### 6. Executive Summary
+Generates final report with:
+- Top 3 ranked opportunities with detailed rationale
+- Market insights and trend analysis
+- Strategic recommendations for validation
+- Next steps for each opportunity
+
+## Customization Options
+
+### Modify Subreddit Sources
+Edit the `$SUBREDDITS` variable to target specific communities:
+```
+$SUBREDDITS := "{{SUBREDDITS:SaaS,indiehackers,nocode,microsaas}}"
+```
+
+### Adjust Batch Size
+For more/fewer ideas, modify `$NUM_IDEAS` and update parallel batch structure:
+```
+$NUM_IDEAS := "{{NUM_IDEAS:20}}"
+```
+
+Then add more parallel batches in Step 2.
+
+### Enhanced Competition Research
+Modify batch analysis prompts to include:
+- LinkedIn company searches
+- Crunchbase funding data
+- GitHub repository analysis
+- App store presence checks
+- Social media sentiment analysis
+
+### Custom Rating Criteria
+Add domain-specific metrics to Step 3:
+- Regulatory Compliance (1-10)
+- Environmental Impact (1-10)
+- Scalability Potential (1-10)
+- Community Demand (1-10)
+
+## Output Examples
+
+### Ratings Table Format
+```markdown
+| # | Title | Description | Overall | Competition | Complexity | Market | Monetization | Feasibility | Competitors | Patent Risk | Domain |
+|---|-------|-------------|---------|-------------|------------|--------|--------------|-------------|-------------|-------------|--------|
+| 1 | AI Resume Parser | Extract structured data from resumes | 8.5 | 6 | 7 | 9 | 8 | 9 | 3 medium competitors | Low | Available (.com, .io) |
+| 2 | Local Service Marketplace | Connect homeowners with contractors | 6.0 | 3 | 8 | 8 | 7 | 6 | Thumbtack, TaskRabbit, Angi | Medium | Taken |
+```
+
+### Executive Summary Sample
+```markdown
+## Top 3 Startup Opportunities
+
+### 1. AI Resume Parser (Score: 8.5/10)
+**Why it's promising:**
+- Large underserved market (HR tech growing 12% YoY)
+- Moderate competition with differentiation opportunities
+- Clear monetization via API/SaaS model
+- Technical feasibility with modern NLP tools
+
+**Next Steps:**
+- Build MVP with GPT-4 integration
+- Target ATS integration as go-to-market
+- Validate with 10 HR managers interviews
+
+[Additional opportunities...]
+```
+
+## Tips for Best Results
+
+1. **Run during peak Reddit hours** (9 AM - 5 PM EST) for fresher content
+2. **Combine multiple subreddits** for diverse idea sources
+3. **Adjust NUM_IDEAS based on depth** (fewer = more thorough analysis)
+4. **Save rejected ideas** - they may become relevant later
+5. **Iterate on rating criteria** based on your investment thesis
+6. **Export results** to spreadsheet for long-term tracking
+
+## Troubleshooting
+
+### Reddit API Rate Limits
+- Default limit: 60 requests/minute
+- Workflow uses ~1-2 requests per idea
+- If exceeded: Reduce `$NUM_IDEAS` or add delays
+
+### Script Execution Failures
+- Ensure temp-scripts directory exists
+- Check Python environment has required packages
+- Verify API credentials are correct
+
+### Empty Results
+- Try different subreddits or time of day
+- Lower filtering thresholds (allow lower scores)
+- Expand search to "rising" or "new" posts
+
+## Advanced Use Cases
+
+### Niche Market Research
+Target micro-communities for specialized opportunities:
+```
+$SUBREDDITS := "biohackers,quantifiedself,nootropics,longevity"
+```
+
+### Competitor Monitoring
+Run weekly to track emerging competitors in your space:
+```
+$SUBREDDITS := "your_industry_subreddit"
+$NUM_IDEAS := "5"
+```
+
+### Investment Pipeline
+Use as deal flow source for angel investing or VC:
+- Higher weight on Market Size and Monetization
+- Add funding feasibility analysis
+- Cross-reference with Crunchbase data
+
+## License & Attribution
+
+Created by the orchestration team. Free to use and modify.
+Contributions welcome at the orchestration plugin repository.

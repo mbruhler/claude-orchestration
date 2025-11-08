@@ -12,9 +12,9 @@ general-purpose:"Analyze the hardcoded strings found and generate semantic i18n 
 
 # Phase 4: Implementation - Apply changes in parallel
 [
-  expert-code-implementer:"Replace all identified hardcoded strings with t() function calls using the generated translation keys. Update all TypeScript/JSX files with proper imports and usage.":code_updated ||
+  general-purpose:"Replace all identified hardcoded strings with t() function calls using the generated translation keys. Update all TypeScript/JSX files with proper imports and usage.":code_updated ||
 
-  expert-code-implementer:"Add new translation keys to all locale JSON files (en, es, zh, ru, pl, uk, hi). Maintain proper JSON structure and alphabetical ordering within sections.":translations_updated
+  general-purpose:"Add new translation keys to all locale JSON files (en, es, zh, ru, pl, uk, hi). Maintain proper JSON structure and alphabetical ordering within sections.":translations_updated
 ] ->
 
 # Phase 5: Verification - Check changes are correct

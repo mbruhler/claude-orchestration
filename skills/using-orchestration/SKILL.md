@@ -39,6 +39,22 @@ This workflow would benefit from orchestration. I can use `/orchestrate` to:
 Would you like me to use `/orchestrate [workflow-syntax]` or create a reusable template?
 ```
 
+**First-time setup reminder:**
+
+If user mentions custom agents (like `expert-code-implementer`, `code-optimizer`, etc.) that aren't in the orchestration namespace:
+
+```
+I notice you have custom agents in your environment.
+Would you like to import them to orchestration first?
+
+Run: /orchestration:init
+
+This will make your custom agents available in workflows as:
+- orchestration:expert-code-implementer
+- orchestration:code-optimizer
+- etc.
+```
+
 ## Quick Syntax Reference
 
 Show relevant syntax based on user's needs:

@@ -1,0 +1,93 @@
+---
+name: i18n-fix-hardcoded-strings-enhanced
+description: Replace hardcoded strings with i18n translations using specialized agents
+visualization: |
+  ╔════════════════════════════════════════════════════════════════════════════╗
+  ║  i18n Fix Hardcoded Strings Workflow (Enhanced)                            ║
+  ╠════════════════════════════════════════════════════════════════════════════╣
+  ║                                                                            ║
+  ║  Phase 1: Discovery                                                        ║
+  ║    [Explore: Find hardcoded strings] ○                                     ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 2: Analysis                                                         ║
+  ║    [$translation-key-generator: Generate i18n keys] ○                      ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 3: User Review                                                      ║
+  ║    [@review-findings] ⊙ CHECKPOINT                                         ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 4: Code Updates                                                     ║
+  ║    [general-purpose: Replace strings with t()] ○                           ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 5: Import Management                                                ║
+  ║    [$import-fixer: Add useTranslation hooks] ○                             ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 6: Locale Updates (Parallel)                                        ║
+  ║    ┌──────┬──────┬──────┬──────┬──────┬──────┬──────┐                     ║
+  ║    │  en  │  es  │  zh  │  ru  │  pl  │  uk  │  hi  │ ○ ○ ○ ○ ○ ○ ○       ║
+  ║    └──────┴──────┴──────┴──────┴──────┴──────┴──────┘                     ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 7: Verification                                                     ║
+  ║    [@verify-changes] ⊙ CHECKPOINT                                          ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 8: Validation                                                       ║
+  ║    [$i18n-validator: Comprehensive validation] ○                           ║
+  ║         │                                                                  ║
+  ║         ▼ (if validation_passed)                                           ║
+  ║  Phase 10: UI Testing                                                      ║
+  ║    [$ui-regression-checker: UI regression check] ○                         ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 11: Final Review                                                    ║
+  ║    [@final-review] ⊙ CHECKPOINT                                            ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 12: TypeScript Check                                                ║
+  ║    [general-purpose: Run tsc --noEmit] ○                                   ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 13: Commit Decision                                                 ║
+  ║    [@commit-decision] ⊙ CHECKPOINT                                         ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 14: Git Commit                                                      ║
+  ║    [general-purpose: Create commit] ○                                      ║
+  ║         │                                                                  ║
+  ║         ▼                                                                  ║
+  ║  Phase 15: Completion                                                      ║
+  ║    [@completion-summary] ⊙ CHECKPOINT                                      ║
+  ║                                                                            ║
+  ╠════════════════════════════════════════════════════════════════════════════╣
+  ║ Status: Ready to execute (15 phases, 5 checkpoints, 7 parallel updates)   ║
+  ║ Variables: strings_found → keys_generated → code_updated → imports_added  ║
+  ║            → en_updated, es_updated, zh_updated, ru_updated, pl_updated,   ║
+  ║              uk_updated, hi_updated → validation_report → regression_report║
+  ╚════════════════════════════════════════════════════════════════════════════╝
+workflow: |
+  $translation-key-generator := {base: "general-purpose", prompt: "i18n specialist for generating semantic translation keys. Follow module.component.purpose pattern. Output structured JSON with keys, sections, and metadata.", model: "sonnet"}
+  $locale-updater := {base: "general-purpose", prompt: "Locale file manager. Add keys to specific locale JSON, maintain alphabetical order, validate JSON syntax. Precise edits only.", model: "sonnet"}
+  $import-fixer := {base: "general-purpose", prompt: "React/TypeScript specialist. Add i18n imports and useTranslation hooks. Handle edge cases: class components, HOCs. Validate TypeScript compilation.", model: "sonnet"}
+  $i18n-validator := {base: "general-purpose", prompt: "i18n QA specialist. Check: key completeness across ALL locales, JSON validity, unused keys, hardcoded strings, interpolation matches. Output structured validation report.", model: "sonnet"}
+  $ui-regression-checker := {base: "general-purpose", prompt: "UI QA specialist. Verify: no render errors, keys resolve correctly, no missing text, accessibility maintained, no layout issues. Output regression report.", model: "sonnet"}
+  Explore:"Search codebase for hardcoded strings in JSX components (Text tags, placeholders, titles, labels, aria-labels, tooltips). Exclude already internationalized strings using t() functions. Focus on .tsx and .jsx files. Provide comprehensive list with file locations and context.":strings_found ->
+  $translation-key-generator:"Analyze the hardcoded strings: {strings_found}. Generate semantic i18n translation keys following module.component.purpose pattern. Determine sections (auth, common, errors, forms, navigation). Handle plurals and interpolation. Output structured JSON.":keys_generated ->
+  @review-findings ->
+  general-purpose:"Replace all identified hardcoded strings with t() function calls using the generated translation keys from: {keys_generated}. Update all TypeScript/JSX files with proper t() usage. DO NOT add imports yet.":code_updated ->
+  $import-fixer:"Add useTranslation imports and hooks to all modified components. Ensure TypeScript compilation passes. Handle functional and class components appropriately.":imports_added ->
+  [$locale-updater:"Update en.json with keys: {keys_generated}. Maintain structure and alphabetical order.":en_updated || $locale-updater:"Update es.json with keys: {keys_generated}. Maintain structure and alphabetical order.":es_updated || $locale-updater:"Update zh.json with keys: {keys_generated}. Maintain structure and alphabetical order.":zh_updated || $locale-updater:"Update ru.json with keys: {keys_generated}. Maintain structure and alphabetical order.":ru_updated || $locale-updater:"Update pl.json with keys: {keys_generated}. Maintain structure and alphabetical order.":pl_updated || $locale-updater:"Update uk.json with keys: {keys_generated}. Maintain structure and alphabetical order.":uk_updated || $locale-updater:"Update hi.json with keys: {keys_generated}. Maintain structure and alphabetical order.":hi_updated] ->
+  @verify-changes ->
+  $i18n-validator:"Validate complete i18n implementation. Check all locales have all keys, no missing translations, JSON validity, no hardcoded strings remain, interpolation matches. Output validation report.":validation_report ->
+  (if validation_passed)~>
+  $ui-regression-checker:"Check for UI regressions from i18n changes. Verify components render, keys resolve, no missing text, accessibility maintained, no layout issues. Output regression report.":regression_report ->
+  @final-review ->
+  general-purpose:"Run TypeScript compilation check to ensure no syntax errors: npx tsc --noEmit --skipLibCheck":typescript_valid ->
+  @commit-decision ->
+  general-purpose:"Stage all modified files (components and locale JSONs) and create git commit with message: 'refactor: replace hardcoded strings with i18n translations'. Include summary: X strings replaced, Y keys added across Z locales. List main files changed.":committed ->
+  @completion-summary
+---

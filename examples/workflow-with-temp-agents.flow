@@ -11,7 +11,7 @@
   },
 
   vulnerability-scanner: {
-    base: "jwt-keycloak-security-auditor",
+    base: "general-purpose",
     prompt: "Perform comprehensive security audit focusing on OWASP Top 10 and common vulnerabilities.",
     constraints: ["no code modifications", "check all file types", "include severity ratings"],
     model: "opus"
@@ -25,7 +25,7 @@
   },
 
   report-generator: {
-    base: "expert-code-implementer",
+    base: "general-purpose",
     prompt: "Generate comprehensive markdown reports with executive summary, detailed findings, and actionable recommendations.",
     output_format: "markdown",
     model: "sonnet"
@@ -63,7 +63,7 @@ Format as professional markdown document":final_report ->
 @review-final-report ->
 
 # Phase 7: Optional - Create implementation plan for fixes
-implementation-architect:"Based on the final report, create a detailed implementation plan to address all critical and high-priority issues. Include task breakdown, time estimates, and dependencies":implementation_plan ->
+Plan:"Based on the final report, create a detailed implementation plan to address all critical and high-priority issues. Include task breakdown, time estimates, and dependencies":implementation_plan ->
 
 # Phase 8: Save the report and optionally save useful agents
 general-purpose:"Save the final report to 'codebase-analysis-report.md' in the project root. Include timestamp and version information":report_saved ->

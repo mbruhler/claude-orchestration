@@ -1,0 +1,57 @@
+---
+name: fix-context-references
+description: Fix context files and their references based on master configuration
+visualization: |
+  ╔═══════════════════════════════════════════════════════════════════════╗
+  ║  Context File Sync Workflow                                           ║
+  ╠═══════════════════════════════════════════════════════════════════════╣
+  ║                                                                       ║
+  ║  Phase 1: Master Config Identification                                ║
+  ║    [@confirm-master-config] ⊙ CHECKPOINT                              ║
+  ║         │                                                             ║
+  ║         ▼                                                             ║
+  ║  Phase 2: Configuration Analysis                                      ║
+  ║    [$config-scanner: Extract component requirements] ○                ║
+  ║         │                                                             ║
+  ║         ▼                                                             ║
+  ║  Phase 3: Component Validation (Parallel)                             ║
+  ║    ┌──────────┬──────────┬──────────┬──────────┐                     ║
+  ║    │  agents  │ commands │  skills  │   docs   │ ○ ○ ○ ○              ║
+  ║    └──────────┴──────────┴──────────┴──────────┘                     ║
+  ║         │                                                             ║
+  ║         ▼ (if all_exist)                                              ║
+  ║  Phase 4: Reference Updates                                           ║
+  ║    [$reference-updater: Update documentation] ○                       ║
+  ║         │                                                             ║
+  ║         ▼                                                             ║
+  ║  Phase 5: Completeness Validation                                     ║
+  ║    [$completeness-validator: Verify all links] ○                      ║
+  ║         │                                                             ║
+  ║         ▼                                                             ║
+  ║  Phase 6: Review & Approval                                           ║
+  ║    [@review-changes] ⊙ CHECKPOINT                                     ║
+  ║         │                                                             ║
+  ║         ▼                                                             ║
+  ║  Phase 7: Summary                                                     ║
+  ║    [@completion-summary] ⊙ CHECKPOINT                                 ║
+  ║                                                                       ║
+  ╠═══════════════════════════════════════════════════════════════════════╣
+  ║ Status: Ready to execute (7 phases, 3 checkpoints, 4 validations)    ║
+  ║ Variables: config_path → components → validation → updates → report  ║
+  ╚═══════════════════════════════════════════════════════════════════════╝
+workflow: |
+  $config-scanner := {base: "general-purpose", prompt: "Configuration file analyzer specializing in extracting component requirements. Parse the master config file to identify all required components: agents, commands, skills, and documentation files. Output structured JSON with: component_type, file_path, name, description, and dependencies. Handle YAML, JSON, and Markdown formats. Be thorough and extract all metadata.", model: "sonnet"}
+  $reference-updater := {base: "general-purpose", prompt: "Documentation reference specialist. Update references in main entries and user-facing files (README, command definitions, skill manifests). Ensure all component links are accurate and complete. Add missing references, remove obsolete ones. Maintain formatting and structure. Validate markdown links and file paths.", model: "sonnet"}
+  $completeness-validator := {base: "general-purpose", prompt: "Completeness validation specialist. Verify that all required components from master config are: 1) Present as files, 2) Referenced in appropriate documentation, 3) Have correct metadata, 4) Are linked bidirectionally where needed. Output validation report with: missing_files, missing_references, broken_links, orphaned_components. Provide actionable recommendations.", model: "sonnet"}
+  @confirm-master-config ->
+  general-purpose:"Ask user to provide the path to the master configuration file (source of truth). Explain this should be the single file that defines all components that need to be referenced. Common names: plugin.yaml, manifest.json, index.md, README.md. Confirm the file exists and is readable.":config_path ->
+  $config-scanner:"Scan the master configuration file at {config_path}. Extract all component requirements: agents (defined and temp), commands (slash commands), skills, and documentation files. Parse metadata including names, descriptions, file paths, and dependencies. Output comprehensive structured JSON.":components ->
+  [Explore:"Verify all agent definition files exist for components: {components}. Check both agents/ and temp-agents/ directories. Report any missing files.":agents_validated || Explore:"Verify all command definition files exist for components: {components}. Check commands/ directory. Report any missing files.":commands_validated || Explore:"Verify all skill definition files exist for components: {components}. Check skills/ directory. Report any missing files.":skills_validated || Explore:"Verify all documentation files exist for components: {components}. Check docs/ directory. Report any missing files.":docs_validated] ->
+  (if all_exist)~>
+  @review-validation ->
+  $reference-updater:"Update all references in main entry files and user-facing documentation based on components: {components}. Update: README.md (component listings), command definitions (agent references), skill manifests (dependencies), docs/index.md (navigation). Ensure all links are correct and complete. Maintain alphabetical ordering where applicable.":updates_applied ->
+  $completeness-validator:"Perform comprehensive validation of the plugin structure using components: {components}. Check: 1) All required files exist, 2) All components are referenced in appropriate docs, 3) All links resolve correctly, 4) No orphaned or undocumented components, 5) Bidirectional references are complete. Generate validation report with any issues found.":validation_report ->
+  @review-changes ->
+  general-purpose:"Generate summary report of all changes made: files updated, references added/removed, validation status. Include: total components processed, files modified, references fixed, any remaining issues. Format as clear markdown summary.":summary ->
+  @completion-summary
+---

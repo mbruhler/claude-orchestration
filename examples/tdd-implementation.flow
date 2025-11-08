@@ -2,10 +2,10 @@
 # Static execution graph for implementing features using TDD methodology
 
 # Phase 1: Requirements Analysis - Understand what needs to be built
-implementation-architect:"Analyze the feature requirements and create detailed implementation plan. Break down into testable units. Define interfaces, data structures, and success criteria. Provide comprehensive technical specification.":requirements_analyzed ->
+Plan:"Analyze the feature requirements and create detailed implementation plan. Break down into testable units. Define interfaces, data structures, and success criteria. Provide comprehensive technical specification.":requirements_analyzed ->
 
 # Phase 2: Write Failing Tests - RED phase
-expert-code-implementer:"Write comprehensive test suite for the feature. Include unit tests, integration tests, edge cases. Tests must fail initially since implementation doesn't exist yet. Use appropriate testing framework.":tests_written ->
+general-purpose:"Write comprehensive test suite for the feature. Include unit tests, integration tests, edge cases. Tests must fail initially since implementation doesn't exist yet. Use appropriate testing framework.":tests_written ->
 
 # Phase 3: Verify Tests Fail - Ensure tests are testing the right thing
 general-purpose:"Run test suite and verify all tests fail as expected. Confirm error messages indicate missing implementation, not test setup issues. Command: npm test":tests_failing ->
@@ -14,7 +14,7 @@ general-purpose:"Run test suite and verify all tests fail as expected. Confirm e
 @review-test-coverage ->
 
 # Phase 5: Minimal Implementation - GREEN phase
-expert-code-implementer:"Write minimal code to make all tests pass. Focus on simplest solution that satisfies tests. Don't add extra functionality or optimization. Just make tests green.":implementation_complete ->
+general-purpose:"Write minimal code to make all tests pass. Focus on simplest solution that satisfies tests. Don't add extra functionality or optimization. Just make tests green.":implementation_complete ->
 
 # Phase 6: Verify Tests Pass - Confirm implementation works
 general-purpose:"Run test suite again and verify all tests now pass. Check test coverage report. Ensure no tests were accidentally broken. Command: npm test -- --coverage":tests_passing ->
@@ -24,9 +24,9 @@ general-purpose:"Run test suite again and verify all tests now pass. Check test 
 
 # Phase 8: Refactor - REFACTOR phase (parallel improvements)
 [
-  code-optimizer:"Refactor implementation for better performance, readability, and maintainability. Extract common patterns, eliminate duplication, improve naming. Keep tests passing throughout.":code_refactored ||
+  general-purpose:"Refactor implementation for better performance, readability, and maintainability. Extract common patterns, eliminate duplication, improve naming. Keep tests passing throughout.":code_refactored ||
 
-  expert-code-implementer:"Add comprehensive documentation: JSDoc comments, README updates, usage examples. Ensure future developers understand the implementation.":documentation_added
+  general-purpose:"Add comprehensive documentation: JSDoc comments, README updates, usage examples. Ensure future developers understand the implementation.":documentation_added
 ] ->
 
 # Phase 9: Final Validation - Ensure nothing broke during refactoring

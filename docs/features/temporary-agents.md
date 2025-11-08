@@ -253,9 +253,16 @@ await Task({
 2. **Single output per agent**: Each agent can only capture one output variable
 3. **String interpolation only**: Variables are stringified when interpolated
 
-## Implementation Files
+## Implementation Details
 
-- `src/temp-agents-parser.js` - Parse and expand temporary agent syntax
-- `src/temp-agents-executor.js` - Handle variable interpolation during execution
-- Parser enhancement in `docs/core/parser.md`
-- Executor enhancement in `docs/core/executor.md`
+The temporary agents system is implemented in two phases:
+
+1. **Parse-time** (See `docs/core/parser.md`):
+   - Extract `$agent := {...}` definitions
+   - Expand `$agent:"instruction":var` to standard agent syntax
+   - Track metadata for variable binding
+
+2. **Execution-time** (See `docs/core/executor.md`):
+   - Interpolate `{varname}` placeholders with actual values
+   - Capture agent outputs to variables
+   - Manage variable dependencies

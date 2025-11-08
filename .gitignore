@@ -1,2 +1,34 @@
 # Temporary agent files (ephemeral, not committed)
 temp-agents/*.md
+
+# Temporary scripts (auto-generated)
+temp-scripts/*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (if any testing infrastructure)
+node_modules/
+
+# Python cache (if any Python scripts)
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local

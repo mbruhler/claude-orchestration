@@ -1,8 +1,23 @@
 ---
 description: Load and execute saved workflow templates
+deprecated: true
 ---
 
-# Orchestration Template Execution
+# ⚠️ DEPRECATED: Orchestration Template Execution
+
+**This command is deprecated.** Use the **using-templates** skill instead for better template discovery and customization.
+
+## Migration Guide
+
+**Instead of:** `/orchestration:template tdd-implementation`
+
+**Just say:** "Use the TDD implementation template"
+
+The `using-templates` skill will automatically activate.
+
+---
+
+## Legacy Usage (Still Works)
 
 Load and execute a saved workflow template with parameter substitution.
 
@@ -21,11 +36,22 @@ description: What this template does
 params:
   param1: Description (default: value)
   param2: Another parameter (default: another value)
+visualization: |
+  ╔════════════════════════════════════════════════════════════════════════════╗
+  ║  Workflow Name                                                             ║
+  ╠════════════════════════════════════════════════════════════════════════════╣
+  ║  [Static ASCII visualization of your workflow]                             ║
+  ║  This will be displayed consistently every time                            ║
+  ╚════════════════════════════════════════════════════════════════════════════╝
+workflow: |
+  step1:"{{param1}}" -> step2:"{{param2}}"
 ---
-
-Workflow:
-step1:"{{param1}}" -> step2:"{{param2}}"
 ```
+
+**Notes:**
+- The `visualization` field is optional but recommended. If provided, this static ASCII art will be displayed instead of dynamically generating the visualization from the workflow syntax.
+- The `workflow` field contains the raw workflow syntax (with `->`, `[]`, `||`, etc.). Keep it compact without comments.
+- Both fields ensure consistent display and execution across all runs.
 
 ## Execution Flow
 
@@ -46,14 +72,17 @@ If file doesn't exist:
 
 ### 2. Parse Template
 
-Extract from template:
-1. **YAML frontmatter** (between `---` delimiters):
-   - name
-   - description
-   - params (with descriptions and defaults)
+Extract from template YAML frontmatter (between `---` delimiters):
+- **name** - Template identifier
+- **description** - What this template does
+- **params** - Parameters with descriptions and defaults
+- **visualization** - Optional static ASCII art (displayed consistently)
+- **workflow** - Raw workflow syntax with operators (`->`, `[]`, `||`, etc.)
 
-2. **Workflow syntax** (after frontmatter):
-   - The actual workflow definition
+**Important:**
+- Both `visualization` and `workflow` are read from the YAML frontmatter
+- No dynamic generation occurs - the template is used exactly as written
+- This ensures 100% consistent display and execution every time
 
 ### 3. Prompt for Parameters
 
@@ -83,22 +112,20 @@ If user selects "Custom value", prompt for the actual value.
 
 ### 4. Substitute Parameters
 
-Replace all `{{param}}` placeholders in workflow syntax with provided values.
+Replace all `{{param}}` placeholders in the workflow with provided values.
 
 Example:
-- Template: `implement:"{{feature}}" -> test:"{{feature}}"`
+- Template workflow: `implement:"{{feature}}" -> test:"{{feature}}"`
 - Values: `{feature: "authentication"}`
 - Result: `implement:"authentication" -> test:"authentication"`
 
 ### 5. Execute Workflow
 
-Pass the substituted workflow syntax to `/orchestration:run`:
+Pass the substituted workflow syntax from the frontmatter to `/orchestration:run`.
 
-```
-/orchestration:run <substituted-workflow-syntax>
-```
+The static visualization (if present) is also passed along to ensure consistent display.
 
-This will trigger the full parse → visualize → execute flow.
+This will trigger the parse → visualize → execute flow using the exact syntax stored in the template.
 
 ## After Execution
 
@@ -131,8 +158,9 @@ When workflow completes, ask if user wants to:
 - Validate parameter values before substitution
 
 **Template Discovery:**
-- Use Glob to find all `*.flow` files
+- Use Glob to find all `*.flow` files in ~/.claude/plugins/repos/orchestration/examples/
 - Parse frontmatter to get names and descriptions
+- Reference examples/README.md for template documentation
 - Cache for quick listing
 
 **Parameter Types:**

@@ -1,7 +1,9 @@
 ---
 name: workflow-syntax-designer
+namespace: orchestration:workflow-syntax-designer
 description: Design custom syntax elements with reuse-first approach
 tools: [Read, Write, Grep, Glob]
+usage: "Use via Task tool with subagent_type: 'orchestration:workflow-syntax-designer'"
 ---
 
 # Workflow Syntax Designer

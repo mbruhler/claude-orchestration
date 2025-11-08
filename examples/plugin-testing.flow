@@ -8,9 +8,9 @@ Explore:"Thoroughly investigate the Claude Code plugin directory. Check plugin.j
 [
   general-purpose:"Validate plugin.json structure: Check required fields, validate command definitions, verify skill declarations, check hook configurations. Report any schema violations or missing elements.":structure_validated ||
 
-  jwt-keycloak-security-auditor:"Audit plugin for security vulnerabilities: Check for exposed secrets, insecure API calls, improper authentication, unsafe file operations. Provide security assessment report.":security_validated ||
+  general-purpose:"Audit plugin for security vulnerabilities: Check for exposed secrets, insecure API calls, improper authentication, unsafe file operations. Provide security assessment report.":security_validated ||
 
-  expert-code-implementer:"Analyze plugin functionality: Test command implementations, verify skill execution, validate hook behaviors. Check for runtime errors and edge cases.":functionality_validated ||
+  general-purpose:"Analyze plugin functionality: Test command implementations, verify skill execution, validate hook behaviors. Check for runtime errors and edge cases.":functionality_validated ||
 
   general-purpose:"Analyze GitHub repository patterns: Check for proper .gitignore, README documentation, LICENSE file, contribution guidelines. Compare against Claude Code plugin standards.":patterns_analyzed ||
 
@@ -24,16 +24,16 @@ general-purpose:"Consolidate all validation results from parallel checks. Catego
 @review-validation-results ->
 
 # Phase 5: Action Planning - Generate improvement plan if needed
-implementation-architect:"Based on validation findings, create detailed improvement plan. Include: specific fixes for each issue, implementation order, estimated effort, testing requirements. Focus on critical and high severity items first.":improvement_plan_created ->
+Plan:"Based on validation findings, create detailed improvement plan. Include: specific fixes for each issue, implementation order, estimated effort, testing requirements. Focus on critical and high severity items first.":improvement_plan_created ->
 
 # Phase 6: Review Checkpoint - Get approval for improvements
 @approve-improvements ->
 
 # Phase 7: Implementation - Execute approved improvements
 [
-  expert-code-implementer:"Implement critical fixes identified in the improvement plan. Focus on security vulnerabilities, broken functionality, and schema violations.":critical_fixed ||
+  general-purpose:"Implement critical fixes identified in the improvement plan. Focus on security vulnerabilities, broken functionality, and schema violations.":critical_fixed ||
 
-  expert-code-implementer:"Implement high-priority improvements: documentation updates, configuration fixes, code optimizations. Ensure backwards compatibility.":improvements_implemented
+  general-purpose:"Implement high-priority improvements: documentation updates, configuration fixes, code optimizations. Ensure backwards compatibility.":improvements_implemented
 ] ->
 
 # Phase 8: Final Validation - Verify all changes work correctly

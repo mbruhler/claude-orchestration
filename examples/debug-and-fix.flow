@@ -20,10 +20,10 @@ general-purpose:"Synthesize all investigation results. Identify root cause of th
 @review-root-cause ->
 
 # Phase 5: Write Regression Test - Prevent future occurrences
-expert-code-implementer:"Write test that reproduces the bug. Test should fail with current broken code. Will serve as regression test after fix is applied. Include edge cases around the bug.":regression_test_written ->
+general-purpose:"Write test that reproduces the bug. Test should fail with current broken code. Will serve as regression test after fix is applied. Include edge cases around the bug.":regression_test_written ->
 
 # Phase 6: Implement Fix
-expert-code-implementer:"Implement the fix for the identified root cause. Make minimal changes necessary to resolve the issue. Don't refactor unrelated code. Focus on targeted solution.":fix_implemented ->
+general-purpose:"Implement the fix for the identified root cause. Make minimal changes necessary to resolve the issue. Don't refactor unrelated code. Focus on targeted solution.":fix_implemented ->
 
 # Phase 7: Verify Fix - Parallel validation
 [
@@ -38,7 +38,7 @@ expert-code-implementer:"Implement the fix for the identified root cause. Make m
 @review-fix ->
 
 # Phase 9: Update Documentation
-expert-code-implementer:"Update relevant documentation: Add note about the fix in CHANGELOG, update any affected API docs, add comment in code explaining why fix was needed (if non-obvious).":documentation_updated ->
+general-purpose:"Update relevant documentation: Add note about the fix in CHANGELOG, update any affected API docs, add comment in code explaining why fix was needed (if non-obvious).":documentation_updated ->
 
 # Phase 10: Commit Fix
 general-purpose:"Create git commit with fix and test. Message format: 'fix: [description of what was broken]'. Include details about root cause and solution in commit body.":fix_committed ->

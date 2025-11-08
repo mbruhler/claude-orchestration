@@ -73,13 +73,11 @@ agent1:"instruction":output1 -> agent2:"instruction":output2
 
 The following agents are available for use in templates:
 
-- `Explore` - Search and explore codebases
-- `general-purpose` - General tasks and command execution
-- `expert-code-implementer` - Code implementation and modification
-- `implementation-architect` - Planning and architecture
-- `code-optimizer` - Performance and quality improvements
-- `jwt-keycloak-security-auditor` - Security auditing
-- `superpowers:code-reviewer` - Code review (via superpowers skill)
+- `Explore` - Fast codebase exploration and search
+- `Plan` - Planning and breaking down complex tasks
+- `general-purpose` - Versatile agent for complex multi-step tasks
+
+**Note:** Additional agents may be available through plugins installed in your environment.
 
 ## Best Practices
 
@@ -126,7 +124,7 @@ When creating new templates:
 
 Before using a template, validate it follows these rules:
 
-- ✅ Uses only real agent names
+- ✅ Uses only real agent names (Explore, Plan, general-purpose, or plugin agents)
 - ✅ No parameter placeholders like `{{param}}`
 - ✅ No custom/undefined actions
 - ✅ Clear phase structure with comments

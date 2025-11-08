@@ -250,7 +250,5 @@ Error: Temporary agent 'scanner' missing required field: base
 ## See Also
 
 - `docs/features/temporary-agents.md` - Full design specification
-- `examples/temp-agents-security-scan.md` - Security workflow example
-- `examples/temp-agents-parallel-analysis.md` - Parallel execution example
-- `src/temp-agents-parser.js` - Parser implementation
-- `src/temp-agents-executor.js` - Executor implementation
+- `examples/workflow-with-temp-agents.flow` - Example workflow using temp agents
+- `docs/reference/variable-binding.md` - Variable binding reference

@@ -1,0 +1,185 @@
+# News Data Merge Workflow
+# Merges RSS fetcher and web scraper results into unified collection
+
+workflow "Polish News Data Merger" {
+
+  # Step 1: Load RSS articles data
+  agent load_rss_data {
+    prompt: """
+    Load the RSS articles data structure.
+
+    Expected format:
+    {
+      "articles": [
+        {
+          "id": "unique_id",
+          "title": "Article title",
+          "url": "article_url",
+          "source": "TVN24|Polsat News|Rzeczpospolita|Interia",
+          "published": "ISO timestamp",
+          "description": "Article description",
+          "content": "Full content if available"
+        }
+      ],
+      "metadata": {
+        "total_feeds_attempted": 8,
+        "successful_feeds": 4,
+        "failed_feeds": 4,
+        "total_articles_retrieved": 152,
+        "sources": {
+          "successful": ["TVN24", "Polsat News", "Rzeczpospolita", "Interia"],
+          "failed": ["Onet", "WP", "TVP", "Gazeta Wyborcza"]
+        }
+      }
+    }
+
+    Tag all articles with collection_method: "rss"
+    Return the processed articles array and metadata.
+    """
+  }
+
+  # Step 2: Load web scraper data
+  agent load_scraper_data {
+    prompt: """
+    Load the web scraper data for failed RSS sources.
+
+    Expected to contain articles from:
+    - Onet
+    - WP (Wirtualna Polska)
+    - TVP
+    - Gazeta Wyborcza
+
+    Expected format:
+    {
+      "articles": [
+        {
+          "id": "unique_id",
+          "title": "Article title",
+          "url": "article_url",
+          "source": "Onet|WP|TVP|Gazeta Wyborcza",
+          "published": "ISO timestamp",
+          "description": "Article description",
+          "content": "Scraped content"
+        }
+      ],
+      "metadata": {
+        "total_sites_attempted": 4,
+        "successful_scrapes": X,
+        "failed_scrapes": Y,
+        "total_articles_retrieved": Z
+      }
+    }
+
+    Tag all articles with collection_method: "scraping"
+    Return the processed articles array and metadata.
+    """
+  }
+
+  # Step 3: Merge datasets
+  agent merge_collections {
+    context: {
+      rss_data: load_rss_data,
+      scraper_data: load_scraper_data
+    }
+
+    prompt: """
+    Merge the RSS and scraper data into a single unified collection.
+
+    Processing rules:
+    1. Combine all articles from both sources
+    2. Check for duplicates by URL - if same article appears in both, prefer RSS version
+    3. Preserve all metadata fields
+    4. Ensure collection_method is properly tagged
+    5. Sort by published date (newest first)
+
+    Create summary statistics:
+    - total_articles: Combined unique count
+    - sources_successful: All sources that provided articles (from RSS OR scraping)
+    - sources_failed: Sources that failed in BOTH methods
+    - rss_articles: Count from RSS
+    - scraped_articles: Count from scraping
+    - duplicate_articles_removed: Count of duplicates found
+
+    Output format:
+    {
+      "all_articles": [
+        {
+          "id": "...",
+          "title": "...",
+          "url": "...",
+          "source": "...",
+          "published": "...",
+          "description": "...",
+          "content": "...",
+          "collection_method": "rss" or "scraping"
+        }
+      ],
+      "summary": {
+        "total_articles": X,
+        "sources_successful": ["list"],
+        "sources_failed": ["list"],
+        "rss_articles": Y,
+        "scraped_articles": Z,
+        "duplicate_articles_removed": N,
+        "collection_timestamp": "ISO timestamp",
+        "sources_breakdown": {
+          "source_name": {
+            "article_count": X,
+            "collection_method": "rss|scraping|both"
+          }
+        }
+      }
+    }
+    """
+  }
+
+  # Step 4: Validate merged data
+  agent validate_merge {
+    context: {
+      merged_data: merge_collections
+    }
+
+    prompt: """
+    Validate the merged dataset for quality and completeness.
+
+    Validation checks:
+    1. All articles have required fields (id, title, url, source, published, collection_method)
+    2. No duplicate URLs in final collection
+    3. Dates are valid ISO timestamps
+    4. Sources are correctly categorized
+    5. Article counts match expected totals
+    6. All 8 original sources are accounted for (either successful or failed)
+
+    Report any issues found and provide recommendations.
+    """
+  }
+
+  # Step 5: Generate final report
+  agent generate_report {
+    context: {
+      merged_data: merge_collections,
+      validation: validate_merge
+    }
+
+    prompt: """
+    Generate a comprehensive report on the merged news collection.
+
+    Include:
+    1. Executive summary (total articles, success rate, time range)
+    2. Source breakdown (articles per source, collection method)
+    3. Content analysis (average article length, content availability)
+    4. Quality metrics (complete vs incomplete articles)
+    5. Recommendations for improving failed sources
+    6. Sample articles from each source (1-2 examples)
+
+    Format as markdown with tables and statistics.
+    """
+  }
+}
+
+# Expected execution flow:
+# load_rss_data → 152 articles from 4 sources
+# load_scraper_data → Articles from remaining 4 sources
+# merge_collections → Unified dataset with deduplication
+# validate_merge → Quality assurance
+# generate_report → Final analysis and recommendations

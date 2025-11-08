@@ -1,0 +1,35 @@
+# UI Component Refinement Workflow
+# Iteratively refines UI components based on design inspirations until user accepts
+
+# Phase 1: Gather Requirements
+general-purpose:"Analyze the component that needs UI refinement. Identify: component name, current styling issues, desired aesthetic, framework/library used (React, Vue, etc), and any constraints (brand colors, accessibility). Document user's vision clearly.":requirements_gathered ->
+
+# Phase 2: Find Design Inspiration
+@refinement-loop ->
+web-searcher:"Search for UI design inspiration on Dribbble, Pinterest, and design galleries based on: {requirements_gathered}. Find 5-8 examples of similar components with modern, professional styling. Include links and describe key design elements (colors, spacing, typography, animations).":inspirations_found ->
+
+# Phase 3: Review Inspirations
+@review-inspirations ->
+
+# Phase 4: Create Design Proposal
+general-purpose:"Based on selected inspirations and user feedback, create detailed design specification. Include: color palette (hex codes), spacing values, typography (fonts, sizes, weights), border radius, shadows, animations/transitions. Provide specific CSS/styling values that match the inspiration.":design_proposal ->
+
+# Phase 5: Implement New Design
+general-purpose:"Implement the design proposal: {design_proposal} for the component. Update styling using the project's styling approach (CSS modules, Tailwind, styled-components, etc). Maintain component functionality while applying new visual design. Ensure responsive design and accessibility.":implementation_complete ->
+
+# Phase 6: Quality Check
+general-purpose:"Review the implemented design changes. Verify: styling is consistent, code is clean, accessibility standards met (ARIA, contrast ratios), responsive on different screen sizes, no breaking changes to functionality. Suggest any improvements.":quality_checked ->
+
+# Phase 7: User Acceptance Decision
+@accept-or-refine ->
+
+# Conditional Loop: If refinement needed, go back to refinement-loop
+# If accepted, workflow completes
+general-purpose:"Check user decision. If user accepted the design, mark as complete. If user requested refinements, prepare refinement notes for next iteration.":decision_processed ->
+
+(if refinement-needed)~> @refinement-loop ->
+
+# Phase 8: Finalize
+general-purpose:"Create summary of UI refinement: before/after comparison, files modified, design elements implemented. Suggest creating git commit with message format: 'style: refine [component-name] UI design'.":refinement_complete ->
+
+@workflow-complete

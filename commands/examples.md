@@ -1,8 +1,23 @@
 ---
 description: Display examples gallery for orchestration workflows
+deprecated: true
 ---
 
-# Orchestration Examples Gallery
+# ⚠️ DEPRECATED: Orchestration Examples Gallery
+
+**This command is deprecated.** Examples are now integrated into skills with detailed explanations.
+
+## Migration Guide
+
+See examples in skills:
+- **creating-workflows/examples.md** - Complete workflow examples
+- **creating-workflows/patterns.md** - Common patterns
+
+Or browse `examples/` directory for `.flow` files.
+
+---
+
+## Legacy Usage (Still Works)
 
 Display the examples gallery for the Workflow Orchestration System.
 
@@ -10,13 +25,19 @@ Display the examples gallery for the Workflow Orchestration System.
 
 ## Load and Display Examples
 
-Use the Glob tool to list available example workflows:
+**Primary Source:** `~/.claude/plugins/repos/orchestration/docs/reference/examples.md` - Curated examples documentation
+
+**Template Source:** Use the Glob tool to list available example workflows:
 
 ```
 Glob('~/.claude/plugins/repos/orchestration/examples/*.flow')
 ```
 
-For each example found, read the file to extract its name and description from the YAML frontmatter, then display a formatted list to the user.
+For each template found, read the file to extract its name and description from the YAML frontmatter.
+
+**Template Documentation:** Reference `~/.claude/plugins/repos/orchestration/examples/README.md` for detailed template information.
+
+Display a formatted list combining both documentation examples and available templates to the user.
 
 ## After Displaying Examples
 
@@ -46,7 +67,11 @@ AskUserQuestion({
 
 ## Implementation Note
 
-If the examples.md file doesn't exist yet, display a friendly message and offer to:
+**Documentation:**
+- Examples gallery: `~/.claude/plugins/repos/orchestration/docs/reference/examples.md`
+- Template documentation: `~/.claude/plugins/repos/orchestration/examples/README.md`
+
+If the examples documentation doesn't exist, display a friendly message and offer to:
 1. Show inline examples (from help reference)
-2. Create the examples.md file
+2. List available templates from examples/ directory
 3. Return to menu
