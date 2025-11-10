@@ -63,8 +63,8 @@ if (input.startsWith('---')) {
 
 ### Phase 0: Pre-Parse (Temporary Agents)
 
-**Reference:** `~/.claude/plugins/repos/orchestration/docs/features/temporary-agents.md`
-**Registry:** `~/.claude/plugins/repos/orchestration/temp-agents/`
+**Reference:** `${CLAUDE_PLUGIN_ROOT}/docs/features/temporary-agents.md`
+**Registry:** `${CLAUDE_PLUGIN_ROOT}/temp-agents/`
 
 If workflow contains temporary agent syntax (`$agent-name`):
 
@@ -107,7 +107,7 @@ Output: general-purpose:"Security expert\n\nScan auth code"
 
 ### Phase 1: Parse
 
-**Reference:** `~/.claude/plugins/repos/orchestration/docs/core/parser.md`
+**Reference:** `${CLAUDE_PLUGIN_ROOT}/docs/core/parser.md`
 
 1. **Tokenize** - Split by operators: `->`, `||`, `~>`, `@`, `[...]`
 2. **Build AST** - Parse tokens into tree (precedence: `[]` > `||` > `->` > `~>`)
@@ -145,7 +145,7 @@ Output: general-purpose:"Security expert\n\nScan auth code"
 
 ### Phase 2: Visualize
 
-**Reference:** `~/.claude/plugins/repos/orchestration/docs/core/visualizer.md`
+**Reference:** `${CLAUDE_PLUGIN_ROOT}/docs/core/visualizer.md`
 
 **Static Visualization Check:**
 Before generating a dynamic visualization, check if a static visualization was provided:
@@ -189,8 +189,8 @@ If no static visualization is provided, generate and display ASCII art visualiza
 
 ### Phase 3: Execute
 
-**Reference:** `~/.claude/plugins/repos/orchestration/docs/core/executor.md`
-**Temp Agents:** `~/.claude/plugins/repos/orchestration/temp-agents/`
+**Reference:** `${CLAUDE_PLUGIN_ROOT}/docs/core/executor.md`
+**Temp Agents:** `${CLAUDE_PLUGIN_ROOT}/temp-agents/`
 
 **Algorithm:**
 1. Initialize all nodes to ○ pending
@@ -287,7 +287,7 @@ When reaching `@label`:
 
 ### Phase 4: Steering
 
-**Reference:** `~/.claude/plugins/repos/orchestration/docs/core/steering.md`
+**Reference:** `${CLAUDE_PLUGIN_ROOT}/docs/core/steering.md`
 
 At checkpoints and after errors, provide control:
 
@@ -330,7 +330,7 @@ AskUserQuestion({
 
 ### Phase 5: Error Recovery
 
-**Reference:** `~/.claude/plugins/repos/orchestration/docs/features/error-handling.md`
+**Reference:** `${CLAUDE_PLUGIN_ROOT}/docs/features/error-handling.md`
 
 When agent fails:
 
@@ -498,12 +498,12 @@ console.log(`Cleaned up ${deleted.length} temp agent(s)`);
 #### What to Clean
 
 1. **Temporary Agent Files** (if not promoted in Phase 7)
-   - Location: `~/.claude/plugins/repos/orchestration/temp-agents/*.md`
+   - Location: `${CLAUDE_PLUGIN_ROOT}/temp-agents/*.md`
    - Delete ALL `.md` files that were created for this workflow
    - Keep only pre-existing temp agents (if any)
 
 2. **Temporary JSON Files**
-   - Location: `~/.claude/plugins/repos/orchestration/examples/*.json`
+   - Location: `${CLAUDE_PLUGIN_ROOT}/examples/*.json`
    - Delete ALL `.json` files (these are intermediate data files)
    - Keep only `.flow` workflow templates
 
@@ -515,26 +515,53 @@ console.log(`Cleaned up ${deleted.length} temp agent(s)`);
 async function cleanupTemporaryFiles() {
   const cleanupTasks = [];
 
-  // 1. Clean up temp agents (already handled in Phase 7 if promoted)
-  // If Phase 7 was skipped (no temp agents), this does nothing
+  // IMPORTANT: Use ${CLAUDE_PLUGIN_ROOT} for plugin workspace paths!
 
-  // 2. Clean up ALL JSON files in examples/
-  const jsonFiles = glob('~/.claude/plugins/repos/orchestration/examples/*.json');
-  for (const file of jsonFiles) {
-    await deleteFile(file);
+  // 1. Clean up temp-scripts (Python, JS, shell scripts created during workflow)
+  const tempScriptFiles = Glob({
+    pattern: "**/*",
+    path: "${CLAUDE_PLUGIN_ROOT}/temp-scripts/"
+  });
+
+  for (const file of tempScriptFiles) {
+    Bash({ command: `rm "${file}"` });
     cleanupTasks.push(file);
   }
 
-  // 3. Report cleanup
+  // 2. Clean up temp agents markdown files (if not promoted)
+  const tempAgentFiles = Glob({
+    pattern: "*.md",
+    path: "${CLAUDE_PLUGIN_ROOT}/temp-agents/"
+  });
+
+  for (const file of tempAgentFiles) {
+    Bash({ command: `rm "${file}"` });
+    cleanupTasks.push(file);
+  }
+
+  // 3. Clean up temporary JSON files in examples/ (workflow state files)
+  const tempJsonFiles = Glob({
+    pattern: "*.json",
+    path: "${CLAUDE_PLUGIN_ROOT}/examples/"
+  });
+
+  for (const file of tempJsonFiles) {
+    Bash({ command: `rm "${file}"` });
+    cleanupTasks.push(file);
+  }
+
+  // 4. Report cleanup
   if (cleanupTasks.length > 0) {
     console.log(`\n🧹 Cleaned up ${cleanupTasks.length} temporary file(s):`);
     cleanupTasks.forEach(file => {
-      console.log(`   - ${basename(file)}`);
+      console.log(`   - ${file.replace('${CLAUDE_PLUGIN_ROOT}/', '')}`);
     });
+  } else {
+    console.log(`\n✨ No temporary files to clean up`);
   }
 }
 
-// Execute cleanup
+// Execute cleanup - MANDATORY after every workflow
 await cleanupTemporaryFiles();
 ```
 
@@ -603,30 +630,30 @@ Maintain execution state throughout:
 ## Documentation References
 
 **Core Implementation:**
-- `~/.claude/plugins/repos/orchestration/docs/core/parser.md` - Syntax parsing details
-- `~/.claude/plugins/repos/orchestration/docs/core/executor.md` - Execution algorithm
-- `~/.claude/plugins/repos/orchestration/docs/core/visualizer.md` - Rendering system
-- `~/.claude/plugins/repos/orchestration/docs/core/steering.md` - Interactive control
+- `${CLAUDE_PLUGIN_ROOT}/docs/core/parser.md` - Syntax parsing details
+- `${CLAUDE_PLUGIN_ROOT}/docs/core/executor.md` - Execution algorithm
+- `${CLAUDE_PLUGIN_ROOT}/docs/core/visualizer.md` - Rendering system
+- `${CLAUDE_PLUGIN_ROOT}/docs/core/steering.md` - Interactive control
 
 **Features:**
-- `~/.claude/plugins/repos/orchestration/docs/features/temporary-agents.md` - Temporary agent system ($agent syntax)
-- `~/.claude/plugins/repos/orchestration/docs/features/defined-agents.md` - Defined agent system
-- `~/.claude/plugins/repos/orchestration/docs/features/agent-promotion.md` - Agent promotion workflow
-- `~/.claude/plugins/repos/orchestration/docs/features/templates.md` - Template system
-- `~/.claude/plugins/repos/orchestration/docs/features/error-handling.md` - Recovery strategies
-- `~/.claude/plugins/repos/orchestration/docs/features/custom-definitions.md` - Extension system
+- `${CLAUDE_PLUGIN_ROOT}/docs/features/temporary-agents.md` - Temporary agent system ($agent syntax)
+- `${CLAUDE_PLUGIN_ROOT}/docs/features/defined-agents.md` - Defined agent system
+- `${CLAUDE_PLUGIN_ROOT}/docs/features/agent-promotion.md` - Agent promotion workflow
+- `${CLAUDE_PLUGIN_ROOT}/docs/features/templates.md` - Template system
+- `${CLAUDE_PLUGIN_ROOT}/docs/features/error-handling.md` - Recovery strategies
+- `${CLAUDE_PLUGIN_ROOT}/docs/features/custom-definitions.md` - Extension system
 
 **Reference:**
-- `~/.claude/plugins/repos/orchestration/docs/reference/syntax.md` - Complete syntax specification
-- `~/.claude/plugins/repos/orchestration/docs/reference/temp-agents-syntax.md` - Temporary agent syntax
-- `~/.claude/plugins/repos/orchestration/docs/reference/best-practices.md` - Guidelines and limitations
+- `${CLAUDE_PLUGIN_ROOT}/docs/reference/syntax.md` - Complete syntax specification
+- `${CLAUDE_PLUGIN_ROOT}/docs/reference/temp-agents-syntax.md` - Temporary agent syntax
+- `${CLAUDE_PLUGIN_ROOT}/docs/reference/best-practices.md` - Guidelines and limitations
 
 **Examples and Templates:**
-- `~/.claude/plugins/repos/orchestration/examples/` - Example workflows directory
-- `~/.claude/plugins/repos/orchestration/examples/README.md` - Template documentation
+- `${CLAUDE_PLUGIN_ROOT}/examples/` - Example workflows directory
+- `${CLAUDE_PLUGIN_ROOT}/examples/README.md` - Template documentation
 
 **Agent System:**
-- `~/.claude/plugins/repos/orchestration/agents/registry.json` - Defined agents registry
-- `~/.claude/plugins/repos/orchestration/agents/workflow-socratic-designer.md` - Socratic workflow designer
-- `~/.claude/plugins/repos/orchestration/agents/workflow-syntax-designer.md` - Syntax designer
-- `~/.claude/plugins/repos/orchestration/temp-agents/` - Temporary agent definitions
+- `${CLAUDE_PLUGIN_ROOT}/agents/registry.json` - Defined agents registry
+- `${CLAUDE_PLUGIN_ROOT}/agents/workflow-socratic-designer.md` - Socratic workflow designer
+- `${CLAUDE_PLUGIN_ROOT}/agents/workflow-syntax-designer.md` - Syntax designer
+- `${CLAUDE_PLUGIN_ROOT}/temp-agents/` - Temporary agent definitions

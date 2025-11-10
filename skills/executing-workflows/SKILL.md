@@ -121,13 +121,36 @@ Options:
 What would you like to do?
 ```
 
-### Phase 6: Cleanup
+### Phase 6: Cleanup (MANDATORY)
 
-After execution, I clean up:
-- Delete temporary JSON files
-- Prompt for temp agent promotion
-- Remove unsaved temp agents
-- Report cleanup actions
+**CRITICAL:** After EVERY workflow execution, you MUST clean up temporary files!
+
+**Cleanup steps:**
+
+1. **Delete temp-scripts** - Remove all Python, JavaScript, shell scripts created during workflow
+   - Path: `${CLAUDE_PLUGIN_ROOT}/temp-scripts/`
+   - Delete ALL files (*.py, *.js, *.sh)
+
+2. **Delete temp-agents** - Remove temporary agent definitions (if not promoted)
+   - Path: `${CLAUDE_PLUGIN_ROOT}/temp-agents/`
+   - Delete all .md files
+
+3. **Delete temporary JSON** - Remove workflow state files
+   - Path: `${CLAUDE_PLUGIN_ROOT}/examples/`
+   - Delete *.json files only (keep .flow files!)
+
+4. **Report cleanup** - Tell user what was cleaned:
+   ```
+   🧹 Cleaned up 5 temporary files:
+   - temp-scripts/fetch_reddit.py
+   - temp-scripts/process_data.js
+   - temp-agents/scanner.md
+   - examples/workflow-state.json
+   ```
+
+5. **Verify cleanup** - Check that temp directories are empty
+
+**NEVER skip cleanup!** This prevents disk clutter and keeps plugin workspace clean.
 
 ## Syntax Reference
 
@@ -147,24 +170,23 @@ See [syntax-reference.md](syntax-reference.md) for complete syntax documentation
 
 ## Agent Types
 
-See [agents.md](agents.md) for detailed agent documentation.
-
-**Built-in agents** (no prefix):
-- `Explore` - Codebase exploration
-- `general-purpose` - General tasks
-- `code-reviewer` - Code review
-- `implementation-architect` - Planning
-- `expert-code-implementer` - Implementation
+**Built-in Claude Code agents** (no prefix):
+- `Explore` - Fast codebase exploration and search
+- `Plan` - Planning and breaking down tasks
+- `general-purpose` - Versatile agent for complex multi-step tasks
 
 **Plugin agents** (orchestration: prefix):
-- `workflow-socratic-designer` - Workflow creation
-- `workflow-syntax-designer` - Custom syntax design
-- Custom defined agents
+- `orchestration:workflow-socratic-designer` - Workflow creation via Socratic method
+- `orchestration:workflow-syntax-designer` - Custom syntax design
+
+**External agents** (registered via /orchestration:init):
+- Agents from `~/.claude/agents/` can be registered and used directly
+- Example: `expert-code-implementer`, `code-optimizer` (if registered)
 
 **Temp agents** ($name):
-- Created during workflow
-- Auto-cleaned after execution
-- Can be promoted to permanent
+- Created during workflow execution
+- Automatically cleaned up after workflow
+- Can be promoted to permanent agents if useful
 
 ## Variable Passing
 

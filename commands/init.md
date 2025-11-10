@@ -87,121 +87,74 @@ No need for orchestration: prefix - they're available as if they were built-in!
 
 **Step 1**: Scan for custom agents
 
-```javascript
-// Find all agent files in ~/.claude/agents/
-const agentsDir = "~/.claude/agents/";
-const builtInAgents = ["explore", "plan", "general-purpose"];
+1. Use Glob tool to find all `.md` files in `~/.claude/agents/`
+2. Filter out built-in agents: `explore`, `plan`, `general-purpose`
+3. For each custom agent file:
+   - Read the file using Read tool
+   - Extract description from frontmatter or first heading
+   - Store agent name and description
+4. If no custom agents found, inform user and exit
 
-// Use Glob to find all .md files
-Glob({ pattern: "*.md", path: agentsDir })
+**Step 2**: Present agents to user using AskUserQuestion
 
-// Read each file to extract description
-// Parse frontmatter or first heading for agent info
-```
+**IMPORTANT:** MUST use AskUserQuestion tool for interactive selection!
 
-**Step 2**: Present agents to user
-
-Use AskUserQuestion to show available agents:
-
-```javascript
-AskUserQuestion({
-  questions: [{
-    question: "Which agents would you like to import to orchestration plugin?",
-    header: "Import Agents",
-    multiSelect: true,
-    options: [
-      // For each agent found:
-      {
-        label: "agent-name",
-        description: "Agent description from file"
-      }
-    ]
-  }]
-})
-```
+1. Create options array from discovered agents
+2. Each option should have:
+   - `label`: agent name (e.g., "expert-code-implementer")
+   - `description`: agent description or "No description available"
+3. Use AskUserQuestion tool:
+   - `question`: "Select agents to register in orchestration context. These agents will become available for use in workflows."
+   - `header`: "Import Agents"
+   - `multiSelect`: true (allow multiple selections)
+   - `options`: the options array
+4. Parse the response to get list of selected agent names
 
 **Step 3**: Register selected agents in skills context
 
 For each selected agent:
 
-```javascript
-// 1. Read source file to extract metadata
-const sourceContent = Read({ file_path: `~/.claude/agents/${agentName}.md` })
-
-// 2. Extract agent metadata (name, description)
-const metadata = extractMetadata(sourceContent)
-
-// 3. Create reference mapping (NOT copying the file)
-agentMappings.push({
-  name: agentName,
-  description: metadata.description,
-  path: `~/.claude/agents/${agentName}.md`,
-  type: "external"
-})
-```
+1. Read the agent file from `~/.claude/agents/{agent-name}.md`
+2. Extract metadata (name, description)
+3. Create reference mapping (do NOT copy the file!)
+4. Store mapping with:
+   - Agent name
+   - Description
+   - Path to original file: `~/.claude/agents/{agent-name}.md`
+   - Type: "external"
 
 **Step 4**: Create or update agent registry for orchestration context
 
-```javascript
-// Create/update orchestration agent registry
-// This is a mapping file that tells orchestration system about available agents
+**IMPORTANT:** Use `${CLAUDE_PLUGIN_ROOT}` for all plugin workspace paths!
 
-const agentRegistry = {
-  externalAgents: {},
-  lastUpdated: new Date().toISOString()
-}
-
-for (const agent of selectedAgents) {
-  agentRegistry.externalAgents[agent.name] = {
-    path: `~/.claude/agents/${agent.name}.md`,
-    description: agent.description,
-    registered: new Date().toISOString().split('T')[0],
-    usageCount: 0
-  }
-}
-
-// Save to orchestration skills context
-// This makes agents available to ALL orchestration workflows
-Write({
-  file_path: "~/.claude/plugins/repos/orchestration/skills/managing-agents/external-agents.json",
-  content: JSON.stringify(agentRegistry, null, 2)
-})
-```
+1. Create agent registry JSON object with:
+   - `externalAgents`: object containing all registered agents
+   - `lastUpdated`: current timestamp
+2. For each selected agent, add entry:
+   - Key: agent name
+   - Value object:
+     - `path`: `~/.claude/agents/{agent-name}.md` (external path, read-only)
+     - `description`: agent description
+     - `registered`: today's date
+     - `usageCount`: 0
+3. Save registry to plugin workspace using Write tool:
+   - Path: `${CLAUDE_PLUGIN_ROOT}/skills/managing-agents/external-agents.json`
+   - Format: Pretty-printed JSON with 2-space indentation
 
 **Step 5**: Update orchestration skills to recognize external agents
 
-Add context to relevant skills so they know about external agents:
-
-```javascript
-// Update creating-workflows/available-agents.md
-const availableAgentsDoc = `
-# Available Agents for Workflows
-
-## Built-in Claude Code Agents
-- Explore - Fast codebase exploration
-- Plan - Planning and task breakdown
-- general-purpose - Versatile multi-step tasks
-
-## Plugin Agents
-${Object.keys(agentRegistry.externalAgents).map(name =>
-  `- ${name} - ${agentRegistry.externalAgents[name].description}`
-).join('\n')}
-
-## Usage in Workflows
-
-External agents can be used directly by name:
-\`\`\`
-expert-code-implementer:"Implement feature X"
-\`\`\`
-
-The orchestration system will automatically resolve the agent from ~/.claude/agents/
-`
-
-Write({
-  file_path: "~/.claude/plugins/repos/orchestration/skills/managing-agents/available-agents.md",
-  content: availableAgentsDoc
-})
-```
+1. Create available-agents.md document content with:
+   - Section: "Built-in Claude Code Agents"
+     - Explore - Fast codebase exploration
+     - Plan - Planning and task breakdown
+     - general-purpose - Versatile multi-step tasks
+   - Section: "Registered External Agents"
+     - List all agents from registry with their descriptions
+   - Section: "Usage in Workflows"
+     - Show example of using external agent directly
+     - Note that orchestration resolves agent from ~/.claude/agents/
+2. Write document to plugin workspace using Write tool:
+   - Path: `${CLAUDE_PLUGIN_ROOT}/skills/managing-agents/available-agents.md`
 
 **Step 6**: Confirm completion
 
