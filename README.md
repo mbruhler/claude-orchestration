@@ -2,7 +2,9 @@
 
 > _Like N8N in Claude Code_
 
-**Multi-agent workflow orchestration.** Chain AI agents to automate complex tasks using natural language or declarative syntax.
+### If you like the project, consider ⭐ it!<br/>
+
+## **Multi-agent workflow orchestration.** Chain AI agents to automate complex tasks using natural language or declarative syntax.
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-blue)](https://claude.com/claude-code)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
