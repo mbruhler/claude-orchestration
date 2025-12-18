@@ -23,7 +23,6 @@ AskUserQuestion({
       {label: "Create from description", description: "Natural language workflow creation"},
       {label: "New workflow", description: "Create workflow from syntax"},
       {label: "Load template", description: "Execute saved flow"},
-      {label: "List templates", description: "Show all templates"},
       {label: "Manage syntax", description: "View/edit global syntax library"},
       {label: "View docs", description: "Help, examples, or topic guides"}
     ]
@@ -47,23 +46,12 @@ AskUserQuestion({
 - Execute `/orchestration:run <syntax>`
 
 ### Load template
-- Show available templates from ~/.claude/plugins/repos/orchestration/examples/
+- Show available templates from:
+  - `./workflows/` (project root)
+  - `~/.claude/workflows/` (Claude root)
+  - `~/.claude/plugins/repos/orchestration/examples/` (built-in)
 - Let user select template
 - Execute `/orchestration:template <template-name>`
-
-### List templates
-- Use Glob: `~/.claude/plugins/repos/orchestration/examples/*.flow`
-- Display table:
-  ```
-  ╔════════════════════════════════════════════════════════╗
-  ║ Name              | Description         | Parameters  ║
-  ╠════════════════════════════════════════════════════════╣
-  ║ tdd-feature       | TDD workflow        | feature     ║
-  ║ debug-fix         | Debug and fix       | issue       ║
-  ║ ...               | ...                 | ...         ║
-  ╚════════════════════════════════════════════════════════╝
-  ```
-- Offer to execute or view any template
 
 ### Manage syntax
 Present submenu for global syntax management using AskUserQuestion:
@@ -89,13 +77,11 @@ AskUserQuestion({
 - Read frontmatter from each file
 - Display table:
   ```
-  ╔════════════════════════════════════════════╗
-  ║ Type      | Name     | Description         ║
-  ╠════════════════════════════════════════════╣
-  ║ operator  | ->       | Sequential flow     ║
-  ║ operator  | ||       | Parallel execution  ║
-  ║ ...       | ...      | ...                 ║
-  ╚════════════════════════════════════════════╝
+  | Type      | Name     | Description         |
+  |-----------|----------|---------------------|
+  | operator  | ->       | Sequential flow     |
+  | operator  | ||       | Parallel execution  |
+  | ...       | ...      | ...                 |
   ```
 - Return to syntax submenu
 
@@ -133,10 +119,10 @@ AskUserQuestion({
 ```
 
 **Handler Actions:**
-- **Help** → Execute `/orchestration:help`
-- **Examples** → Execute `/orchestration:examples`
-- **Explain topic** → Execute `/orchestration:explain`
-- **Back to menu** → Redisplay main menu
+- **Help** -> Execute `/orchestration:help`
+- **Examples** -> Execute `/orchestration:examples`
+- **Explain topic** -> Execute `/orchestration:explain`
+- **Back to menu** -> Redisplay main menu
 
 ---
 

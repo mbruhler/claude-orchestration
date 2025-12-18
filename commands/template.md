@@ -25,7 +25,13 @@ Load and execute a saved workflow template with parameter substitution.
 
 ## Template Location
 
-Templates are stored at: `~/.claude/plugins/repos/orchestration/examples/{{ARGS}}.flow`
+Templates are searched in the following locations (in order of priority):
+
+1. **Project root**: `./workflows/{{ARGS}}.flow`
+2. **Claude root**: `~/.claude/workflows/{{ARGS}}.flow`
+3. **Plugin examples**: `~/.claude/plugins/repos/orchestration/examples/{{ARGS}}.flow`
+
+The first matching template found is used. Project-local templates take precedence over global templates.
 
 ## Template Format
 
@@ -57,14 +63,31 @@ workflow: |
 
 ### 1. Check Template Exists
 
-Read template file:
+Search for template in multiple locations (in order):
+
 ```javascript
-Read(`~/.claude/plugins/repos/orchestration/examples/${templateName}.flow`)
+// 1. Check project root
+const projectPath = `./workflows/${templateName}.flow`;
+
+// 2. Check Claude root
+const claudePath = `~/.claude/workflows/${templateName}.flow`;
+
+// 3. Check plugin examples
+const pluginPath = `~/.claude/plugins/repos/orchestration/examples/${templateName}.flow`;
+
+// Try each location in order, use first found
+for (const path of [projectPath, claudePath, pluginPath]) {
+  const template = Read(path);
+  if (template) return template;
+}
 ```
 
-If file doesn't exist:
+If file doesn't exist in any location:
 - Display friendly error message
-- List available templates from `~/.claude/plugins/repos/orchestration/examples/*.flow`
+- List available templates from all locations:
+  - `./workflows/*.flow` (project root)
+  - `~/.claude/workflows/*.flow` (Claude root)
+  - `~/.claude/plugins/repos/orchestration/examples/*.flow` (plugin examples)
 - Offer to:
   - Select another template
   - Create new workflow from scratch
@@ -158,9 +181,13 @@ When workflow completes, ask if user wants to:
 - Validate parameter values before substitution
 
 **Template Discovery:**
-- Use Glob to find all `*.flow` files in ~/.claude/plugins/repos/orchestration/examples/
+- Use Glob to find all `*.flow` files in multiple locations:
+  - `./workflows/` (project root)
+  - `~/.claude/workflows/` (Claude root)
+  - `~/.claude/plugins/repos/orchestration/examples/` (plugin examples)
 - Parse frontmatter to get names and descriptions
 - Reference examples/README.md for template documentation
+- Display templates grouped by location with clear labels
 - Cache for quick listing
 
 **Parameter Types:**

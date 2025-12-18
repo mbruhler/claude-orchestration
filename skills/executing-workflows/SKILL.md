@@ -32,7 +32,7 @@ I automatically:
 3. Execute agents with progress updates
 4. Handle checkpoints and steering
 5. Manage errors gracefully
-6. Clean up temporary files
+6. Clean up temporary files (with user confirmation)
 
 ## Execution Process
 
@@ -51,22 +51,22 @@ I show you the execution plan using ASCII art:
 
 ```
 Execution Graph:
-┌─────────────────┐
-│ Explore         │
-│ (Analyze code)  │
-└────────┬────────┘
-         │
++-----------------+
+| Explore         |
+| (Analyze code)  |
++--------+--------+
+         |
          v
-┌─────────────────┐
-│ implement       │
-│ (Add feature)   │
-└────────┬────────┘
-         │
++-----------------+
+| implement       |
+| (Add feature)   |
++--------+--------+
+         |
          v
-┌─────────────────┐
-│ general-purpose │
-│ (Run tests)     │
-└─────────────────┘
++-----------------+
+| general-purpose |
+| (Run tests)     |
++-----------------+
 ```
 
 ### Phase 3: Execute
@@ -76,9 +76,9 @@ I run agents sequentially or in parallel:
 **Sequential** (`->`):
 ```
 Running: Explore...  [In Progress]
-Result: ✓ Analysis complete
+Result: Analysis complete
 Running: implement...  [In Progress]
-Result: ✓ Feature added
+Result: Feature added
 ```
 
 **Parallel** (`||`):
@@ -110,7 +110,7 @@ Your choice?
 If agent fails, I offer options:
 
 ```
-❌ Agent 'implement' failed: Tests not passing
+Agent 'implement' failed: Tests not passing
 
 Options:
   - Retry with same instruction
@@ -121,36 +121,76 @@ Options:
 What would you like to do?
 ```
 
-### Phase 6: Cleanup (MANDATORY)
+### Phase 6: Cleanup (CONDITIONAL)
 
-**CRITICAL:** After EVERY workflow execution, you MUST clean up temporary files!
+**IMPORTANT:** After workflow execution, check for temporary files and ask user before deleting.
 
-**Cleanup steps:**
+#### Step 1: Detect Temporary Files
 
-1. **Delete temp-scripts** - Remove all Python, JavaScript, shell scripts created during workflow
-   - Path: `${CLAUDE_PLUGIN_ROOT}/temp-scripts/`
-   - Delete ALL files (*.py, *.js, *.sh)
+Check for existence of temporary files in the **current working directory**:
 
-2. **Delete temp-agents** - Remove temporary agent definitions (if not promoted)
-   - Path: `${CLAUDE_PLUGIN_ROOT}/temp-agents/`
-   - Delete all .md files
+```bash
+# Check temp-agents
+TEMP_AGENTS=$(ls ./temp-agents/*.md 2>/dev/null | wc -l)
 
-3. **Delete temporary JSON** - Remove workflow state files
-   - Path: `${CLAUDE_PLUGIN_ROOT}/examples/`
-   - Delete *.json files only (keep .flow files!)
+# Check temp-scripts
+TEMP_SCRIPTS=$(ls ./temp-scripts/* 2>/dev/null | wc -l)
 
-4. **Report cleanup** - Tell user what was cleaned:
-   ```
-   🧹 Cleaned up 5 temporary files:
-   - temp-scripts/fetch_reddit.py
-   - temp-scripts/process_data.js
-   - temp-agents/scanner.md
-   - examples/workflow-state.json
-   ```
+# Check temporary JSON (NOT .flow files!)
+TEMP_JSON=$(ls ./examples/*.json 2>/dev/null | wc -l)
 
-5. **Verify cleanup** - Check that temp directories are empty
+TOTAL=$((TEMP_AGENTS + TEMP_SCRIPTS + TEMP_JSON))
+```
 
-**NEVER skip cleanup!** This prevents disk clutter and keeps plugin workspace clean.
+#### Step 2: If Files Exist, Ask User
+
+**Only if `TOTAL > 0`**, use AskUserQuestion:
+
+```javascript
+AskUserQuestion({
+  questions: [{
+    question: "Found ${TOTAL} temporary files. Do you want to delete them?",
+    header: "Cleanup",
+    multiSelect: false,
+    options: [
+      {label: "Yes, delete all", description: "Remove all temporary files (temp-agents, temp-scripts, temp JSON)"},
+      {label: "Show me first", description: "List files before deciding"},
+      {label: "No, keep them", description: "Leave files for manual review"}
+    ]
+  }]
+})
+```
+
+#### Step 3: Execute Cleanup if Confirmed
+
+If user chose "Yes, delete all":
+
+```bash
+# Delete temp-agents (in current working directory)
+rm -f ./temp-agents/*.md
+
+# Delete temp-scripts (in current working directory)
+rm -rf ./temp-scripts/*
+
+# Delete temporary JSON only (keep .flow files!)
+rm -f ./examples/*.json
+```
+
+Report what was deleted:
+```
+Cleaned up ${TOTAL} temporary files:
+- ${TEMP_AGENTS} temp agents removed
+- ${TEMP_SCRIPTS} temp scripts removed
+- ${TEMP_JSON} temporary JSON files removed
+```
+
+If user chose "Show me first":
+1. List all files with paths
+2. Ask again: "Delete these files?" with Yes/No options
+
+#### Step 4: Skip if No Files
+
+If `TOTAL == 0`, skip cleanup silently (don't bother user).
 
 ## Syntax Reference
 
@@ -184,8 +224,8 @@ See [syntax-reference.md](syntax-reference.md) for complete syntax documentation
 - Example: `expert-code-implementer`, `code-optimizer` (if registered)
 
 **Temp agents** ($name):
-- Created during workflow execution
-- Automatically cleaned up after workflow
+- Created during workflow execution in `./temp-agents/`
+- Automatically cleaned up after workflow (with user confirmation)
 - Can be promoted to permanent agents if useful
 
 ## Variable Passing
@@ -308,15 +348,15 @@ During execution, I show:
 
 ```
 Workflow: TDD Implementation
-Progress: [████████░░] 80%
+Progress: [========..] 80%
 
-Phase 1: ✓ Requirements analyzed
-Phase 2: ✓ Tests written
-Phase 3: ✓ Tests verified failing
-Phase 4: ⏸ Checkpoint: review-test-coverage
-Phase 5: ⏳ In Progress: Implementing code...
-Phase 6: ⏸ Pending
-Phase 7: ⏸ Pending
+Phase 1: Done - Requirements analyzed
+Phase 2: Done - Tests written
+Phase 3: Done - Tests verified failing
+Phase 4: Paused - Checkpoint: review-test-coverage
+Phase 5: In Progress - Implementing code...
+Phase 6: Pending
+Phase 7: Pending
 ```
 
 ## Workflow Metadata
@@ -329,12 +369,12 @@ Started: 2025-01-08 14:32:10
 Duration: 5m 23s
 Agents used: 8
 Checkpoints: 2
-Status: ✓ Complete
+Status: Complete
 
 Agents executed:
-- Explore (×1)
-- general-purpose (×5)
-- expert-code-implementer (×2)
+- Explore (x1)
+- general-purpose (x5)
+- expert-code-implementer (x2)
 
 Resources:
 - Files read: 12
@@ -354,7 +394,7 @@ Resources:
 
 **Agent not found**:
 - Check agent name spelling
-- Verify temp agent exists in temp-agents/
+- Verify temp agent exists in `./temp-agents/`
 - Ensure namespace prefix for plugin agents
 
 **Variable not found**:

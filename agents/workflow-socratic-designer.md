@@ -208,7 +208,7 @@ Each temp agent needs a comprehensive prompt that ensures reliable execution:
 
 ### Temp Agent File Structure
 
-Create temp agent files in `temp-agents/{agent-name}.md` with this structure:
+Create temp agent files in `./temp-agents/{agent-name}.md` (in current working directory) with this structure:
 
 ```markdown
 ---
@@ -237,7 +237,7 @@ Use these tools:
 
 ### Example Temp Agent
 
-For a security scanning workflow, create `temp-agents/security-scanner.md`:
+For a security scanning workflow, create `./temp-agents/security-scanner.md`:
 
 ```markdown
 ---
@@ -290,7 +290,7 @@ Use the Write tool to create temp agent files:
 
 ```javascript
 Write({
-  file_path: `/path/to/orchestration/temp-agents/${agentName}.md`,
+  file_path: `./temp-agents/${agentName}.md`,  // In current working directory
   content: `---
 name: ${agentName}
 description: ${description}
@@ -363,7 +363,7 @@ general-purpose:"Create a [Python/Node.js] script that:
 2. [Authentication step if needed]
 3. [Data extraction/processing]
 4. Returns [output format]
-5. Save as temp-scripts/[name].py
+5. Save as ./temp-scripts/[name].py
 6. Execute the script and return [results]"
 ```
 
@@ -397,7 +397,7 @@ general-purpose:"Create Python script using PRAW library:
 2. Fetch 10 hot posts from r/startups
 3. Extract: title, url, score, selftext
 4. Return JSON array
-5. Save as temp-scripts/reddit_fetcher.py
+5. Save as ./temp-scripts/reddit_fetcher.py
 6. Execute and return results":reddit_posts
 ```
 
@@ -410,7 +410,7 @@ general-purpose:"Create Python script with BeautifulSoup:
 2. Scrape first 20 results
 3. Extract: name, description, upvotes, url
 4. Return JSON array
-5. Save as temp-scripts/producthunt_scraper.py
+5. Save as ./temp-scripts/producthunt_scraper.py
 6. Execute and return results":competitors
 ```
 

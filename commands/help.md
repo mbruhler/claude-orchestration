@@ -11,37 +11,38 @@ Display the quick reference guide for the Workflow Orchestration System.
 ## Display Quick Reference
 
 ```
-╔══════════════════════════════════════════════════════════════╗
-║                Orchestration Quick Reference                 ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  OPERATORS                                                   ║
-║  step1 -> step2           Sequential                         ║
-║  step1 || step2           Parallel                           ║
-║  step (if cond)~> next    Conditional                        ║
-║  @label                   Checkpoint                         ║
-║  [...]                    Subgraph                           ║
-║                                                              ║
-║  AGENTS                                                      ║
-║  explore:"task"           Investigation                      ║
-║  general-purpose:"task"   Implementation                     ║
-║  code-reviewer:"task"     Quality check                      ║
-║                                                              ║
-║  EXAMPLES                                                    ║
-║  explore:"find bugs" -> review -> implement                  ║
-║  [test || lint] (all success)~> deploy                      ║
-║  @try -> fix -> test (if failed)~> @try                     ║
-║                                                              ║
-║  COMMANDS                                                    ║
-║  /orchestration:create            Natural language creation  ║
-║  /orchestration:orchestrate       Main orchestration menu    ║
-║  /orchestration:help              Quick reference            ║
-║  /orchestration:explain <topic>   Detailed docs              ║
-║  /orchestration:examples          Gallery                    ║
-║  /orchestration:run <syntax>      Execute workflow           ║
-║  /orchestration:template <name>   Load and run template      ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
++--------------------------------------------------------------+
+|                Orchestration Quick Reference                 |
++--------------------------------------------------------------+
+|                                                              |
+|  OPERATORS                                                   |
+|  step1 -> step2           Sequential                         |
+|  step1 || step2           Parallel                           |
+|  step (if cond)~> next    Conditional                        |
+|  @label                   Checkpoint                         |
+|  [...]                    Subgraph                           |
+|                                                              |
+|  AGENTS                                                      |
+|  explore:"task"           Investigation                      |
+|  general-purpose:"task"   Implementation                     |
+|  code-reviewer:"task"     Quality check                      |
+|                                                              |
+|  EXAMPLES                                                    |
+|  explore:"find bugs" -> review -> implement                  |
+|  [test || lint] (all success)~> deploy                       |
+|  @try -> fix -> test (if failed)~> @try                      |
+|                                                              |
+|  COMMANDS                                                    |
+|  /orchestration:init              Import custom agents       |
+|  /orchestration:create            Natural language creation  |
+|  /orchestration:run <syntax>      Execute workflow           |
+|  /orchestration:template <name>   Load and run template      |
+|  /orchestration:menu              Main menu                  |
+|  /orchestration:help              This quick reference       |
+|  /orchestration:examples          View example workflows     |
+|  /orchestration:explain           Detailed topic docs        |
+|                                                              |
++--------------------------------------------------------------+
 ```
 
 ## Next Steps
@@ -55,9 +56,9 @@ AskUserQuestion({
     header: "Next",
     multiSelect: false,
     options: [
-      {label: "View examples", description: "See example workflows"},
-      {label: "Explain topic", description: "Learn about specific features"},
       {label: "Create workflow", description: "Start building a workflow"},
+      {label: "Load template", description: "Execute a saved template"},
+      {label: "View examples", description: "See example workflows"},
       {label: "Return to menu", description: "Go back to main menu"}
     ]
   }]
@@ -65,7 +66,7 @@ AskUserQuestion({
 ```
 
 **Handler Actions:**
-- **View examples** → Execute `/orchestration:examples`
-- **Explain topic** → Execute `/orchestration:explain`
-- **Create workflow** → Prompt for syntax and execute `/orchestration:run <syntax>`
-- **Return to menu** → Execute `/orchestration:menu`
+- **Create workflow** -> Execute `/orchestration:create`
+- **Load template** -> Execute `/orchestration:template`
+- **View examples** -> Execute `/orchestration:examples`
+- **Return to menu** -> Execute `/orchestration:menu`

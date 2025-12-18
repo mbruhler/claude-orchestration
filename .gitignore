@@ -35,3 +35,13 @@ yarn-error.log*
 # Environment files
 .env
 .env.local
+
+# API credentials - NEVER commit these
+config/*-credentials.json
+config/credentials*.json
+**/credentials.json
+**/secrets.json
+*.credentials.json
+
+# Campaign data (may contain sensitive info)
+campaigns/

@@ -1,0 +1,589 @@
+# Universal Marketing Campaign Workflow
+# Platform: Reddit (configurable for other platforms)
+# Fetches relevant posts, generates contextual responses, and posts comments
+# Approach: Soft promotion (helpful + promotional balance)
+
+# ============================================================================
+# SECURITY: CREDENTIAL HANDLING
+# ============================================================================
+# This workflow requires API credentials. NEVER commit credentials to git.
+#
+# REQUIRED SETUP:
+# 1. Copy: config/reddit-credentials.json.example -> config/reddit-credentials.json
+# 2. Fill in your credentials
+# 3. Ensure config/reddit-credentials.json is in .gitignore
+#
+# The workflow will:
+# - Verify credentials file exists
+# - Check .gitignore includes the credentials file
+# - Abort if credentials might be accidentally committed
+# ============================================================================
+
+# ============================================================================
+# WORKFLOW EXECUTION
+# ============================================================================
+
+# Phase 0: Security & Credential Verification
+general-purpose:"SECURITY CHECK - Verify credentials are properly configured and protected.
+
+**Step 1: Check if credentials file exists**
+
+Look for: config/reddit-credentials.json
+
+If NOT found:
+- Check if config/reddit-credentials.json.example exists
+- If example exists, tell user to copy and fill it in
+- If example doesn't exist, create it with this template:
+  {
+    \"client_id\": \"YOUR_SCRIPT_APP_CLIENT_ID\",
+    \"client_secret\": \"YOUR_CLIENT_SECRET\",
+    \"username\": \"YOUR_REDDIT_USERNAME\",
+    \"password\": \"YOUR_REDDIT_PASSWORD\",
+    \"user_agent\": \"marketing-bot/1.0 by YOUR_USERNAME\"
+  }
+- Use AskUserQuestion to ask if they want to set up credentials now or abort
+
+If FOUND:
+- Read the file and verify it has all required fields
+- Check that values are not placeholder text (e.g., not 'YOUR_...')
+
+**Step 2: Verify .gitignore protection**
+
+Check if .gitignore exists in project root.
+
+Search .gitignore for:
+- 'config/reddit-credentials.json'
+- 'config/*.json' (covers it)
+- '*-credentials.json' (covers it)
+
+If NOT protected:
+- WARN the user: 'Your credentials file is NOT gitignored!'
+- Show them what to add: config/reddit-credentials.json
+- Use AskUserQuestion to ask:
+  - 'Add to .gitignore now' (recommended)
+  - 'I'll handle it manually'
+  - 'Abort workflow'
+- If they choose to add, append to .gitignore:
+  # API credentials - NEVER commit
+  config/reddit-credentials.json
+  config/*-credentials.json
+
+**Step 3: Check for accidental staging**
+
+Run: git status config/reddit-credentials.json
+
+If file is staged or modified in git:
+- ABORT immediately
+- Tell user: 'DANGER: Credentials file is staged in git!'
+- Instruct: 'Run: git reset HEAD config/reddit-credentials.json'
+- Instruct: 'Run: git rm --cached config/reddit-credentials.json'
+
+**Output:**
+Return {credentials_status}:
+- verified: true/false
+- path: 'config/reddit-credentials.json'
+- protected: true/false (gitignore status)
+- ready_to_proceed: true/false":credentials_status ->
+
+# Phase 1: Socratic Discovery - Extract True Intent
+general-purpose:"SOCRATIC DISCOVERY - Use strategic questions to understand the user's TRUE marketing goals.
+
+IMPORTANT: Use AskUserQuestion tool for ALL questions. Do NOT list questions as text.
+
+**Round 1: Core Intent (Start Here)**
+
+Ask ONE question at a time. Wait for response before asking next.
+
+Question 1 - What are you promoting?
+Use AskUserQuestion:
+- question: 'What would you like to promote?'
+- header: 'Project'
+- options:
+  - {label: 'Open source project', description: 'GitHub repo, CLI tool, library'}
+  - {label: 'SaaS product', description: 'Web app, subscription service'}
+  - {label: 'Content/Resource', description: 'Blog, course, documentation'}
+  - {label: 'Service/Consulting', description: 'Freelance, agency, expertise'}
+
+Based on response, ask follow-up:
+- 'Tell me more about [their choice]. What does it do in 1-2 sentences?'
+- 'What URL should we link to?' (GitHub, website, landing page)
+
+**Round 2: Problem-Solution Fit**
+
+Question 2 - What problem does it solve?
+'What specific problem does [project] solve for users?'
+- Get them to articulate the pain point clearly
+- If vague, probe: 'Can you give an example of when someone would need this?'
+- Probe: 'What would they do without your solution?'
+
+Question 3 - Who has this problem?
+Use AskUserQuestion:
+- question: 'Who typically has this problem?'
+- header: 'Audience'
+- options:
+  - {label: 'Developers', description: 'Backend, frontend, full-stack engineers'}
+  - {label: 'DevOps/SREs', description: 'Infrastructure, deployment, monitoring'}
+  - {label: 'Data/ML engineers', description: 'Data pipelines, ML workflows'}
+  - {label: 'Founders/Indie hackers', description: 'Building products, startups'}
+
+Then ask: 'What skill level? Beginners, intermediate, or experts?'
+
+**Round 3: Competitive Landscape**
+
+Question 4 - What alternatives exist?
+'What do people currently use to solve this problem?'
+- If they don't know: 'That's useful info too - means less competition'
+- If they mention tools: 'How is [your project] different/better?'
+
+Question 5 - What's your unique angle?
+Use AskUserQuestion:
+- question: 'What makes your approach unique?'
+- header: 'Differentiation'
+- options:
+  - {label: 'Simpler', description: 'Easier to use, less complexity'}
+  - {label: 'More powerful', description: 'More features, capabilities'}
+  - {label: 'Cheaper/Free', description: 'Cost advantage'}
+  - {label: 'Novel approach', description: 'New way of solving the problem'}
+
+**Round 4: Tone & Style Discovery**
+
+Question 6 - How do you want to come across?
+'Imagine someone reads your comment. How should they feel about you?'
+- Probe for personality: expert, helpful peer, enthusiastic builder, etc.
+
+Question 7 - Writing style specifics
+Use AskUserQuestion with multiSelect: true:
+- question: 'Which of these describe your preferred writing style?'
+- header: 'Style'
+- options:
+  - {label: 'Casual', description: 'Lowercase, abbreviations, typos ok'}
+  - {label: 'Professional', description: 'Proper grammar, formal tone'}
+  - {label: 'Technical', description: 'Jargon, code examples, detailed'}
+  - {label: 'Friendly', description: 'Warm, approachable, emoji ok'}
+
+**Round 5: Scope & Targets**
+
+Question 8 - Which communities?
+'Which subreddits would have people with this problem?'
+- If they don't know, suggest based on their audience: r/programming, r/webdev, r/SideProject, etc.
+- Validate: 'Have you seen similar discussions there?'
+
+Question 9 - Campaign scope
+Use AskUserQuestion:
+- question: 'How aggressive should this campaign be?'
+- header: 'Scope'
+- options:
+  - {label: 'Test run (10-20 posts)', description: 'Try it out, see reception'}
+  - {label: 'Moderate (30-50 posts)', description: 'Balanced approach'}
+  - {label: 'Full campaign (50-100 posts)', description: 'Maximum reach'}
+
+**Synthesis**
+
+After all questions, summarize what you learned:
+
+'Based on our conversation, here's what I understand:
+
+**Project**: [name] - [description]
+**Problem**: [pain point it solves]
+**Audience**: [who has the problem]
+**Unique value**: [differentiation]
+**Tone**: [style description]
+**Target**: [subreddits, scope]
+
+Does this capture your marketing intent correctly?'
+
+Use AskUserQuestion to confirm or adjust.
+
+Save to {campaign_intent}:
+- project_name
+- project_url
+- description
+- problem_statement
+- target_audience
+- skill_level
+- competitors
+- unique_value
+- tone_description
+- style_preferences
+- target_subreddits
+- campaign_scope
+- keywords (derived from problem + audience)":campaign_intent ->
+
+# Phase 2: Detailed Configuration
+general-purpose:"CONFIGURATION - Finalize campaign parameters based on {campaign_intent}.
+
+**Auto-derive keywords**
+Based on {campaign_intent}:
+- Extract key terms from problem_statement
+- Add target_audience descriptors
+- Include technology/domain terms
+- Create comma-separated keyword list
+
+**Content strategy decisions**
+Use AskUserQuestion:
+- question: 'How should comments reference your project?'
+- header: 'Mention Style'
+- options:
+  - {label: 'Direct', description: 'We built X to solve this'}
+  - {label: 'Personal', description: 'I use X for this'}
+  - {label: 'Suggestive', description: 'You might like X'}
+  - {label: 'Comparative', description: 'X is like Y but better at Z'}
+
+Use AskUserQuestion:
+- question: 'Should comments include code examples?'
+- header: 'Code'
+- options:
+  - {label: 'Yes, always', description: 'Show code whenever relevant'}
+  - {label: 'Sometimes', description: 'Only for technical questions'}
+  - {label: 'Rarely', description: 'Keep it high-level'}
+  - {label: 'Never', description: 'No code snippets'}
+
+**Time range**
+Use AskUserQuestion:
+- question: 'How far back should we search for posts?'
+- header: 'Time Range'
+- options:
+  - {label: '3 days', description: 'Very recent, active discussions'}
+  - {label: '7 days', description: 'Standard range (recommended)'}
+  - {label: '14 days', description: 'Extended reach'}
+  - {label: '30 days', description: 'Maximum historical'}
+
+**Compile final config**
+Create {campaign_config} combining:
+- All fields from {campaign_intent}
+- credentials_path: {credentials_status.path}
+- target_keywords: [auto-derived list]
+- mention_style: [user choice]
+- code_examples: [user choice]
+- time_range: [user choice]
+- num_posts: [based on campaign_scope]
+- max_comment_length: 150 (default) or based on style
+
+Display summary table of final configuration for user confirmation.":campaign_config ->
+
+# Phase 3: Fetch relevant Reddit posts
+general-purpose:"Execute Python script to fetch Reddit posts.
+
+1. Read credentials from {campaign_config.credentials_path}
+2. Create temp-scripts/reddit_fetcher.py with:
+   - Load credentials from JSON file
+   - Search subreddits: {campaign_config.target_subreddits}
+   - Keywords: {campaign_config.target_keywords}
+   - Time range: last {campaign_config.time_range} days
+
+3. Ranking algorithm:
+   - Keyword matching: +10 points per keyword match in title/body
+   - Engagement score: upvotes + (comments * 2)
+   - Recency: posts within 24h get +20 points
+   - Discussion quality: posts with >5 comments get +15 points
+   - Filter out: deleted posts, locked threads, automoderator posts
+
+4. Fetch {campaign_config.num_posts} posts, process in batches of 10
+5. Return JSON with:
+   {
+     \"total_posts\": N,
+     \"batches\": [
+       {
+         \"batch_num\": 1,
+         \"posts\": [
+           {
+             \"id\": \"...\",
+             \"title\": \"...\",
+             \"body\": \"...\",
+             \"subreddit\": \"...\",
+             \"author\": \"...\",
+             \"score\": N,
+             \"num_comments\": N,
+             \"url\": \"...\",
+             \"relevance_score\": N,
+             \"matched_keywords\": [...]
+           }
+         ]
+       }
+     ]
+   }
+
+6. Save to {reddit_data} variable":reddit_data ->
+
+# Phase 4: Analyze and filter posts for relevance
+general-purpose:"Process and filter Reddit posts:
+
+For each batch in {reddit_data.batches}:
+
+1. **Relevance Analysis**
+   For each post, evaluate against {campaign_intent}:
+   - Direct mention of problem that {campaign_config.project_name} solves
+   - User asking for solution/recommendation
+   - Discussion of pain points matching {campaign_intent.problem_statement}
+   - Opportunity for helpful, non-spammy contribution
+   - Community receptiveness (check subreddit rules)
+
+2. **Opportunity Scoring**
+   Score each post (0-100):
+   - Problem-Solution fit: Does project genuinely help? (40 points)
+   - Timing: Is question recent/unanswered? (20 points)
+   - Engagement: Active discussion? (20 points)
+   - Community: Receptive to recommendations? (20 points)
+
+3. **Filtering**
+   - Remove posts with score < 60
+   - Skip if OP already got comprehensive answer
+   - Skip if similar product already mentioned
+   - Skip if subreddit has strict no-promotion rules
+
+4. **Prioritization**
+   - Sort by opportunity score
+   - Take top 5 posts per batch
+   - Ensure diversity (max 2 from same subreddit per batch)
+
+Return {filtered_posts} with:
+- post_id, title, body
+- opportunity_score
+- why_relevant (explanation)
+- suggested_angle (how to approach comment)":filtered_posts ->
+
+# Phase 5: Generate soft-promotional comments
+general-purpose:"Generate helpful comments for {filtered_posts}:
+
+**Campaign Context from Socratic Discovery:**
+- Project: {campaign_config.project_name}
+- Description: {campaign_config.description}
+- Problem it solves: {campaign_intent.problem_statement}
+- Unique value: {campaign_intent.unique_value}
+- URL: {campaign_config.project_url}
+
+**Tone & Style from User:**
+Apply {campaign_config.tone_description} and {campaign_config.style_preferences} EXACTLY.
+
+- Mention style: {campaign_config.mention_style}
+- Code examples: {campaign_config.code_examples}
+- Max length: {campaign_config.max_comment_length} words
+
+**Soft Promotion Formula:**
+70% Helpful + 30% Promotional = Natural, Valuable Comments
+
+**Comment Structure:**
+1. **Acknowledge problem** (1-2 sentences)
+   Show you understand their specific situation
+
+2. **Provide helpful context** (2-3 sentences)
+   Share insight, explain the problem, mention general approaches
+
+3. **Introduce your project naturally** (2-3 sentences)
+   Use {campaign_config.mention_style}:
+   - Direct: 'We built [Project] to handle this exact use case'
+   - Personal: 'I've been using [Project] for similar workflows'
+   - Suggestive: 'You might find [Project] helpful for this'
+   - Comparative: '[Project] is like X but focuses on Y'
+
+4. **Provide concrete example** (if relevant)
+   Code snippet, workflow example, quick demo
+   Only include if {campaign_config.code_examples} allows
+
+5. **Include link + offer help** (1 sentence)
+   '[Project link] if you want to check it out'
+   'Happy to answer questions if you try it'
+
+**Style Application - CRITICAL:**
+Match {campaign_config.tone_description} EXACTLY.
+
+Generate comment for each post in {filtered_posts}:
+- post_id
+- comment_text (markdown formatted)
+- approach_used (which angle from analysis)
+- estimated_receptiveness (low/medium/high)":generated_comments ->
+
+# Phase 6: Review checkpoint - User approval
+@review-comments:"Review generated comments before posting.
+
+For each comment, check:
+
+**Alignment with Intent:**
+- Does it address {campaign_intent.problem_statement}?
+- Does it reflect {campaign_intent.unique_value}?
+- Does the tone match {campaign_config.tone_description}?
+
+**Quality Checks:**
+- Helpfulness: Does it genuinely answer their question?
+- Relevance: Is the project mention natural and appropriate?
+- Tone: Soft promotion, not hard sell?
+- Accuracy: Are claims about the project correct?
+- Community Fit: Will this subreddit be receptive?
+- Value Add: Does this add to the discussion?
+
+**Red Flags to Watch For:**
+- Too salesy or promotional
+- Ignores the actual question
+- Forced product mention
+- Exaggerated claims
+- Copy-paste feeling
+- Might violate subreddit rules
+
+**Review Stats:**
+- Total comments: {generated_comments.length}
+- High receptiveness: {count high}
+- Medium receptiveness: {count medium}
+- Low receptiveness: {count low}
+
+**Options:**
+- [C]ontinue - Post all approved comments
+- [M]odify - Regenerate specific comments (provide post IDs)
+- [S]kip - Skip specific posts (provide post IDs)
+- [E]dit - Manually edit specific comments
+- [A]bort - Cancel entire campaign
+
+Enter your choice:" ->
+
+# Phase 7: Post comments with rate limiting
+general-purpose:"Post approved comments to Reddit:
+
+1. Load credentials from {campaign_config.credentials_path}
+2. Create temp-scripts/reddit_commenter.py:
+   - Read credentials JSON
+   - Accept comments as JSON input via stdin
+   - Implement rate limiting (2 minutes between comments)
+   - Handle Reddit API errors gracefully
+   - Return detailed success/failure for each
+
+3. Process {generated_comments} in batches:
+   - Batch size: 5 comments
+   - For each batch:
+     * Create JSON: [{\"post_id\": \"...\", \"comment\": \"...\"}, ...]
+     * Execute: python3 reddit_commenter.py < batch.json
+     * Wait 2 minutes before next batch
+     * Log each result
+
+4. Error handling:
+   - Rate limit hit: Wait 10 minutes, retry
+   - Auth error: Abort and report
+   - Post deleted/locked: Skip and log
+   - Network error: Retry up to 3 times
+
+5. Track results:
+   - Successful posts with URLs
+   - Failed posts with error reasons
+   - Skipped posts
+
+6. Return {posting_results}:
+   {
+     \"total_attempted\": N,
+     \"successful\": [
+       {\"post_id\": \"...\", \"comment_url\": \"...\", \"posted_at\": \"...\"}
+     ],
+     \"failed\": [
+       {\"post_id\": \"...\", \"error\": \"...\", \"retry_possible\": bool}
+     ],
+     \"skipped\": [
+       {\"post_id\": \"...\", \"reason\": \"...\"}
+     ]
+   }":posting_results ->
+
+# Phase 8: Generate comprehensive campaign report
+general-purpose:"Create detailed campaign summary report:
+
+# Marketing Campaign Report
+# Project: {campaign_config.project_name}
+# Date: {current_date}
+# Duration: {workflow_duration}
+
+## Campaign Intent (from Socratic Discovery)
+- **Problem Addressed**: {campaign_intent.problem_statement}
+- **Target Audience**: {campaign_intent.target_audience}
+- **Unique Value**: {campaign_intent.unique_value}
+- **Tone**: {campaign_config.tone_description}
+
+## Campaign Configuration
+- **Target Keywords**: {campaign_config.target_keywords}
+- **Target Subreddits**: {campaign_config.target_subreddits}
+- **Posts Analyzed**: {reddit_data.total_posts}
+- **Time Range**: Last {campaign_config.time_range} days
+
+## Execution Results
+- **Comments Generated**: {generated_comments.length}
+- **Successfully Posted**: {posting_results.successful.length}
+- **Failed**: {posting_results.failed.length}
+- **Skipped**: {posting_results.skipped.length}
+- **Success Rate**: {percentage}%
+
+## Successful Comments
+
+{For each successful post:}
+### [{subreddit}] {post_title}
+- **Post Score**: {score} upvotes, {num_comments} comments
+- **Relevance Score**: {relevance_score}/100
+- **Comment URL**: {comment_url}
+- **Posted**: {timestamp}
+- **Keywords Matched**: {matched_keywords}
+
+## Failed/Skipped Comments
+
+{For each failed:}
+- **Post**: [{subreddit}] {post_title}
+- **Error**: {error_message}
+- **Retry Possible**: {yes/no}
+
+## Performance Analysis
+
+### Top Performing Posts (by engagement)
+{Top 10 posts we commented on, sorted by score}
+
+### Keyword Performance
+{Frequency analysis of which keywords led to best opportunities:}
+- {keyword}: {count} posts, {avg_relevance_score} avg score
+
+### Subreddit Breakdown
+{For each subreddit:}
+- **{subreddit}**: {num_posts} posts, {num_comments} comments, {success_rate}%
+
+### Timing Analysis
+- **Best time range**: {when most opportunities found}
+- **Post age sweet spot**: {average age of best posts}
+
+## Next Steps
+
+### Immediate Actions (Next 24h)
+- [ ] Monitor comments for replies/questions
+- [ ] Respond to any follow-up questions
+- [ ] Track comment scores (upvotes/downvotes)
+- [ ] Note any negative feedback
+
+### Short-term Monitoring (Next 7 days)
+- [ ] Check project traffic sources (did Reddit drive visits?)
+- [ ] Monitor {campaign_config.project_url} analytics
+- [ ] Track GitHub stars/installs (if applicable)
+- [ ] Collect user feedback from Reddit interactions
+
+### Campaign Optimization
+- [ ] Analyze which comments got best reception
+- [ ] Identify which subreddits were most receptive
+- [ ] Note which keywords led to best opportunities
+- [ ] Adjust marketing angle based on feedback
+
+### Next Campaign (Run in 7-14 days)
+- [ ] Update target keywords based on performance
+- [ ] Add/remove subreddits based on receptiveness
+- [ ] Refine comment template based on successful patterns
+- [ ] Adjust time range if needed
+
+## Recommendations
+
+{Based on performance, provide 3-5 specific recommendations:}
+1. {Most receptive subreddit} showed high engagement - increase focus here
+2. {Specific keyword} had {X}% better relevance scores - prioritize in next campaign
+3. Comments with {code examples/comparisons/etc} performed better - include more
+4. {Subreddit} had {negative/neutral} reception - {reduce focus/skip/adjust approach}
+5. {Timing insight} - adjust search window for next campaign
+
+## Raw Data Export
+
+Export full campaign data to:
+- `campaign-results-{timestamp}.json` (structured data)
+- `campaign-report-{timestamp}.md` (this report)
+
+Saved to: campaigns/ directory
+":final_report
+
+# End of workflow
+# Cleanup: Remove temp-scripts/
+# Display: {final_report}
+# Export: Save report to campaigns/campaign-{timestamp}.md

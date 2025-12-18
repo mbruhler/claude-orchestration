@@ -94,8 +94,8 @@ When your workflow needs specialized expertise, I can create **temp agents** for
 
 **Temp agents are:**
 - Created automatically during workflow design
-- Saved in `temp-agents/` directory
-- Auto-cleaned after workflow execution
+- Saved in `./temp-agents/` directory (in current working directory)
+- Cleaned after workflow design (with user confirmation)
 - Can be promoted to permanent agents if useful
 
 **When I create temp agents:**
@@ -104,6 +104,59 @@ When your workflow needs specialized expertise, I can create **temp agents** for
 - Multiple workflows might benefit (I'll suggest making it permanent)
 
 See [temp-agents.md](temp-agents.md) for examples and guidelines.
+
+## Credential Security (CRITICAL)
+
+When workflows require API credentials or sensitive data, I follow strict security practices:
+
+### Security Checklist
+
+1. **Never hardcode credentials** in workflow files
+2. **Use config files** for credentials (e.g., `config/reddit-credentials.json`)
+3. **Provide example files** (e.g., `config/reddit-credentials.json.example`)
+4. **Verify .gitignore** includes credential files before workflow runs
+5. **Check git status** to ensure credentials aren't staged
+
+### Required Workflow Phase
+
+For workflows requiring credentials, I add a **Phase 0: Security Verification** step:
+
+```flow
+# Phase 0: Security & Credential Verification
+general-purpose:"SECURITY CHECK - Verify credentials are properly configured.
+
+1. Check if credentials file exists
+2. Verify .gitignore includes the credentials file
+3. Check git status for accidental staging
+4. Abort if credentials might be committed
+
+If NOT protected:
+- WARN user
+- Offer to add to .gitignore
+- Only proceed after confirmation":credentials_status
+```
+
+### .gitignore Patterns
+
+These patterns MUST be in .gitignore:
+```
+# API credentials - NEVER commit
+config/*-credentials.json
+config/credentials*.json
+**/credentials.json
+**/secrets.json
+*.credentials.json
+.env
+.env.local
+```
+
+### User Notification
+
+When I detect a workflow needs credentials, I:
+1. Ask user if they have credentials set up
+2. Provide setup instructions with example file
+3. Verify .gitignore protection
+4. Add security verification phase to workflow
 
 ## Temp Scripts (CRITICAL)
 
@@ -131,7 +184,7 @@ general-purpose:"Create Python script using PRAW library:
 2. Fetch 10 hot posts from r/startups
 3. Extract: title, url, score, selftext
 4. Return JSON array
-5. Save as temp-scripts/reddit_fetcher.py
+5. Save as ./temp-scripts/reddit_fetcher.py
 6. Execute and return results":reddit_posts
 ```
 
@@ -227,7 +280,7 @@ Templates include:
 - Complete workflow syntax
 - Usage instructions
 
-Templates are saved in `examples/` directory as `.flow` files.
+Templates are saved in `./examples/` directory as `.flow` files.
 
 ## What Happens Next
 
@@ -237,6 +290,67 @@ After I create your workflow:
 2. **Customize**: You can ask for modifications
 3. **Save**: I offer to save as template
 4. **Execute**: Use `/orchestration:run` to execute it
+5. **Cleanup**: Check for temp files and ask about deletion
+
+## Cleanup After Workflow Design (MANDATORY)
+
+After completing workflow design, check for temporary files and ask user before deleting.
+
+### Step 1: Detect Temporary Files
+
+Check for existence of temporary files in the **current working directory**:
+
+```bash
+# Check temp-agents created during design
+TEMP_AGENTS=$(ls ./temp-agents/*.md 2>/dev/null | wc -l)
+
+# Check temp-scripts created during design
+TEMP_SCRIPTS=$(ls ./temp-scripts/* 2>/dev/null | wc -l)
+
+TOTAL=$((TEMP_AGENTS + TEMP_SCRIPTS))
+```
+
+### Step 2: If Files Exist, Ask User
+
+**Only if `TOTAL > 0`**, use AskUserQuestion:
+
+```javascript
+AskUserQuestion({
+  questions: [{
+    question: "Found ${TOTAL} temporary files created during workflow design. Do you want to delete them?",
+    header: "Cleanup",
+    multiSelect: false,
+    options: [
+      {label: "Yes, delete all", description: "Remove temp-agents and temp-scripts"},
+      {label: "Show me first", description: "List files before deciding"},
+      {label: "No, keep them", description: "Leave files for workflow execution"}
+    ]
+  }]
+})
+```
+
+### Step 3: Execute Cleanup if Confirmed
+
+If user chose "Yes, delete all":
+
+```bash
+# Delete temp-agents (in current working directory)
+rm -f ./temp-agents/*.md
+
+# Delete temp-scripts (in current working directory)
+rm -rf ./temp-scripts/*
+```
+
+Report what was deleted:
+```
+Cleaned up ${TOTAL} temporary files:
+- ${TEMP_AGENTS} temp agents removed
+- ${TEMP_SCRIPTS} temp scripts removed
+```
+
+### Step 4: Skip if No Files
+
+If `TOTAL == 0`, skip cleanup silently (don't bother user).
 
 ## Tips for Best Results
 

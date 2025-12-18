@@ -16,7 +16,17 @@ I activate when you:
 - Ask "what templates exist?"
 - Say "use the X template"
 
-## Available Templates
+## Template Locations
+
+Templates are searched in the following locations (in order of priority):
+
+1. **Project root**: `./workflows/*.flow` - Project-specific templates
+2. **Claude root**: `~/.claude/workflows/*.flow` - User's global templates
+3. **Plugin examples**: `~/.claude/plugins/repos/orchestration/examples/*.flow` - Built-in examples
+
+Project-local templates take precedence over global templates.
+
+## Built-in Example Templates
 
 Located in `examples/` directory:
 
@@ -33,26 +43,38 @@ Located in `examples/` directory:
 ### 1. List Templates
 
 ```bash
-ls examples/*.flow
+# List project templates
+ls ./workflows/*.flow 2>/dev/null
+
+# List user's global templates
+ls ~/.claude/workflows/*.flow 2>/dev/null
+
+# List built-in examples
+ls ~/.claude/plugins/repos/orchestration/examples/*.flow
 ```
 
 ### 2. View Template
 
 ```bash
-cat examples/tdd-implementation.flow
+# View from any location
+cat ./workflows/my-template.flow
+cat ~/.claude/workflows/my-template.flow
+cat ~/.claude/plugins/repos/orchestration/examples/tdd-implementation.flow
 ```
 
 ### 3. Execute Template
 
-Use `/orchestration:template` command:
+Use `/orchestration:template` command (searches all locations automatically):
 
 ```
 /orchestration:template tdd-implementation
 ```
 
-Or reference directly:
+Or reference directly with path:
 
 ```
+Use ./workflows/my-workflow.flow
+Use ~/.claude/workflows/my-workflow.flow
 Use examples/tdd-implementation.flow
 ```
 
@@ -121,21 +143,42 @@ step5 -> step6
 
 ## Saving Custom Templates
 
-After customizing:
+After customizing, save to your preferred location:
 
-1. Save to examples/ directory
-2. Use `.flow` extension
-3. Add descriptive header
-4. Include usage instructions
-
+### Project-specific templates (recommended for project workflows)
 ```bash
-# Save your custom template
-cat > examples/my-custom-workflow.flow << 'EOF'
-# My Custom Workflow
+mkdir -p ./workflows
+cat > ./workflows/my-project-workflow.flow << 'EOF'
+# My Project Workflow
+# Description: Custom automation for this project
+...
+EOF
+```
+
+### User's global templates (shared across all projects)
+```bash
+mkdir -p ~/.claude/workflows
+cat > ~/.claude/workflows/my-global-workflow.flow << 'EOF'
+# My Global Workflow
+# Description: Custom automation available everywhere
+...
+EOF
+```
+
+### Plugin examples (for contributing back)
+```bash
+cat > ~/.claude/plugins/repos/orchestration/examples/my-workflow.flow << 'EOF'
+# My Example Workflow
 # Description: Custom automation for X
 ...
 EOF
 ```
+
+**Guidelines:**
+1. Use `.flow` extension
+2. Add descriptive header
+3. Include usage instructions
+4. Project templates take precedence if same name exists globally
 
 ## Template Categories
 

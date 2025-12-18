@@ -1,0 +1,291 @@
+---
+name: "AI Automation Outreach"
+description: |
+  Lead generation workflow that scrapes Google Maps for businesses with high AI automation potential,
+  analyzes their AI readiness, generates personalized outreach emails using local Claude CLI,
+  and exports everything to Google Sheets.
+
+  The workflow uses Apify's Google Maps Scraper to collect business data, calculates an AI readiness
+  score based on industry, reviews, phone presence, and operating hours, then generates personalized
+  emails offering voice agents, call agents, and other AI automation services.
+
+  Supports parallel location scraping - analyze businesses across multiple cities simultaneously
+  for broader market coverage.
+
+author: "orchestration"
+version: "1.0"
+tags: ["apify", "google-maps", "lead-generation", "outreach", "google-sheets", "ai-automation"]
+workflow: |
+  # AI Automation Outreach Workflow
+  # Scrape Google Maps -> Analyze AI readiness -> Generate emails with Claude CLI -> Save to Google Sheets
+
+  # Configuration (customize these)
+  $APIFY_API_KEY := "{{APIFY_API_KEY}}"
+  $GOOGLE_SERVICE_ACCOUNT_JSON := "{{GOOGLE_SERVICE_ACCOUNT_JSON}}"
+  $MAX_RESULTS := "{{MAX_RESULTS:10}}"
+  $LOCATIONS := "{{LOCATIONS:restaurants in Miami,dental clinics in Los Angeles}}"
+
+  # Step 1: Parallel location scraping with Apify
+  [
+    general-purpose:"Create Python script for Apify Google Maps scraping:
+    1. Install: pip install apify-client python-dotenv
+    2. Load APIFY_API_KEY from environment
+    3. Use Apify actor 'compass/google-maps-scraper' with search query: first location from $LOCATIONS
+    4. Set maxCrawledPlacesPerSearch to $MAX_RESULTS
+    5. Extract: name, address, phone, website, email, rating, reviewsCount, categoryName, description, openingHours, url
+    6. Return JSON array
+    7. Save as temp-scripts/apify_location_1.py and execute":location_1_results
+    ||
+    general-purpose:"Create Python script for Apify Google Maps scraping:
+    1. Same setup as location 1
+    2. Use search query: second location from $LOCATIONS
+    3. Extract same fields
+    4. Save as temp-scripts/apify_location_2.py and execute":location_2_results
+  ] ->
+
+  # Step 2: Merge and analyze all businesses for AI readiness
+  general-purpose:"Create Python script to analyze AI readiness:
+  1. Merge {location_1_results} and {location_2_results} into single array
+  2. For each business, calculate ai_readiness_score (0-100):
+     - Service industry (restaurant, clinic, salon, etc.): +30 points
+     - 100+ reviews: +25 points
+     - Has phone number: +20 points
+     - No/basic website: +15 points
+     - Extended operating hours: +10 points
+  3. Identify pain_points array based on category: ['high call volume', 'appointment scheduling', 'after-hours inquiries', 'customer response time']
+  4. Set recommended_solutions: {voice_agent: bool, call_agent: bool, chatbot: bool}
+  5. Add competitive_insight: check if description mentions AI/chatbot (indicates competition)
+  6. Filter to only businesses with ai_readiness_score > 50
+  7. Save as temp-scripts/ai_readiness_analyzer.py and execute
+  8. Return enriched JSON array":analyzed_businesses ->
+
+  # Step 3: Generate personalized emails using local Claude CLI
+  general-purpose:"Create a bash script that generates personalized emails using 'claude -p':
+  1. Read {analyzed_businesses} JSON
+  2. For each business with ai_readiness_score > 50 and has email or phone:
+     - Build a prompt with business context: name, category, rating, reviewCount, pain_points, recommended_solutions
+     - Use 'claude -p' to generate email with:
+       * Subject mentioning business name and a specific pain point
+       * Opening referencing their rating/reviews
+       * 2-3 industry-specific pain points
+       * How voice/call agents solve these (reference recommended_solutions)
+       * Specific metric like 'reduce response time by 80%'
+       * CTA for free 15-min consultation
+     - Tone: consultative, professional, not salesy
+  3. Parse Claude's response to extract subject and body
+  4. Return JSON array: {business_name, email_address, phone, subject, email_body, ai_readiness_score}
+  5. Save as temp-scripts/email_generator.sh and execute":personalized_emails ->
+
+  # Step 4: Export to Google Sheets
+  general-purpose:"Create Python script to export to Google Sheets:
+  1. Install: pip install gspread oauth2client
+  2. Load GOOGLE_SERVICE_ACCOUNT_JSON path from environment
+  3. Create/open spreadsheet 'AI Automation Outreach'
+  4. Headers: Timestamp, Business Name, Address, Phone, Website, Email, Category, Rating, Review Count, AI Readiness Score, Pain Points, Recommended Solutions, Competitive Insight, Email Subject, Email Body, Status
+  5. Append all rows from {personalized_emails}
+  6. Set Status to 'Ready to Send'
+  7. Save as temp-scripts/sheets_exporter.py and execute
+  8. Return: {spreadsheet_url, rows_added}":export_result ->
+
+  # Step 5: Generate summary report
+  general-purpose:"Create summary report:
+  - Total businesses scraped: count from {location_1_results} + {location_2_results}
+  - AI-ready prospects (score >50): count from {analyzed_businesses}
+  - Emails generated: count from {personalized_emails}
+  - Google Sheet URL: {export_result.spreadsheet_url}
+  - Top 3 prospects by AI readiness score with details
+  - Distribution by location and industry
+  - Common pain points identified
+  - Recommended next steps":final_report
+
+visualization: |
+  +==============================================================+
+  |  AI Automation Outreach Workflow                             |
+  +==============================================================+
+  |                                                              |
+  |     +------------------+     +------------------+            |
+  |     | Location 1       |     | Location 2       |            |
+  |     | Apify Scraper    |     | Apify Scraper    |            |
+  |     +--------+---------+     +--------+---------+            |
+  |              |                        |                      |
+  |              +----------+-------------+                      |
+  |                         |                                    |
+  |                         v                                    |
+  |              +----------+------------+                       |
+  |              | AI Readiness Analyzer |                       |
+  |              | Score 0-100           |                       |
+  |              +----------+------------+                       |
+  |                         |                                    |
+  |                         v                                    |
+  |              +----------+------------+                       |
+  |              | Email Generator       |                       |
+  |              | (claude -p local)     |                       |
+  |              +----------+------------+                       |
+  |                         |                                    |
+  |                         v                                    |
+  |              +----------+------------+                       |
+  |              | Google Sheets Export  |                       |
+  |              +----------+------------+                       |
+  |                         |                                    |
+  |                         v                                    |
+  |              +----------+------------+                       |
+  |              | Summary Report        |                       |
+  |              +-----------------------+                       |
+  |                                                              |
+  +==============================================================+
+  | Features:                                                    |
+  |  - Parallel multi-location scraping via Apify                |
+  |  - AI readiness scoring (0-100)                              |
+  |  - Local email generation with claude -p                     |
+  |  - Google Sheets integration                                 |
+  +==============================================================+
+---
+
+# AI Automation Outreach Template
+
+## Overview
+
+This workflow automates lead generation for AI automation services. It scrapes Google Maps for businesses, analyzes their AI readiness potential, generates personalized outreach emails using local Claude CLI, and exports everything to Google Sheets.
+
+## Prerequisites
+
+### Apify Account
+1. Sign up at https://apify.com
+2. Get your API key from Settings > Integrations
+3. You get 5$ free credits monthly
+
+### Google Sheets Service Account
+1. Go to https://console.cloud.google.com
+2. Create a project and enable Google Sheets API
+3. Create a service account and download JSON credentials
+4. Share your target spreadsheet with the service account email
+
+### Local Claude CLI
+- Ensure `claude` CLI is installed and configured
+- The workflow uses `claude -p` for local email generation (no API key needed)
+
+## Usage
+
+### Basic Usage
+```bash
+/orchestration:template ai-automation-outreach
+```
+
+### Required Parameters
+- **APIFY_API_KEY**: Your Apify API key
+- **GOOGLE_SERVICE_ACCOUNT_JSON**: Path to service account JSON file
+
+### Optional Parameters
+- **MAX_RESULTS**: Number of businesses per location (default: 10)
+- **LOCATIONS**: Comma-separated search queries (default: "restaurants in Miami,dental clinics in Los Angeles")
+
+### Example Configuration
+```
+APIFY_API_KEY: apify_api_xxxxx
+GOOGLE_SERVICE_ACCOUNT_JSON: /path/to/service-account.json
+MAX_RESULTS: 10
+LOCATIONS: dental clinics in Chicago,restaurants in New York,real estate agencies in San Francisco
+```
+
+## Workflow Steps
+
+### 1. Parallel Location Scraping
+- Runs Apify's Google Maps Scraper for each location simultaneously
+- Collects: name, address, phone, website, email, rating, reviews, category, hours
+- Each location runs as an independent parallel task
+
+### 2. AI Readiness Analysis
+- Merges results from all locations
+- Calculates AI readiness score (0-100) based on:
+  - Industry type (+30 for service industries)
+  - Review volume (+25 for 100+ reviews)
+  - Phone presence (+20)
+  - Website quality (+15 for no/basic site)
+  - Operating hours (+10 for extended hours)
+- Identifies pain points and recommends solutions
+- Filters to prospects with score > 50
+
+### 3. Email Generation (Local Claude)
+- Uses `claude -p` for completely local email generation
+- Creates personalized emails referencing:
+  - Business name and category
+  - Their rating and review count
+  - Industry-specific pain points
+  - Matching AI solutions (voice/call agents)
+  - Specific metrics and ROI
+
+### 4. Google Sheets Export
+- Creates/updates spreadsheet "AI Automation Outreach"
+- Full data: business info, AI score, pain points, email content
+- Status column for tracking outreach
+
+### 5. Summary Report
+- Total businesses scraped
+- AI-ready prospects count
+- Top 3 opportunities
+- Distribution by location/industry
+
+## Customization
+
+### Add More Locations
+Modify `$LOCATIONS` to include more search queries:
+```
+$LOCATIONS := "{{LOCATIONS:restaurants in Miami,dental in LA,salons in NYC,real estate in SF}}"
+```
+
+Then add more parallel scraping blocks in Step 1.
+
+### Adjust AI Readiness Scoring
+Modify the scoring weights in Step 2 based on your target market.
+
+### Custom Email Templates
+Adjust the email generation prompt in Step 3 to match your services and tone.
+
+## Output
+
+### Google Sheet Columns
+| Column | Description |
+|--------|-------------|
+| Timestamp | When the lead was scraped |
+| Business Name | Company name |
+| Address | Full address |
+| Phone | Phone number |
+| Website | Website URL |
+| Email | Email address (if found) |
+| Category | Business category |
+| Rating | Google rating |
+| Review Count | Number of reviews |
+| AI Readiness Score | 0-100 score |
+| Pain Points | Identified pain points |
+| Recommended Solutions | voice_agent, call_agent, chatbot |
+| Competitive Insight | AI adoption status |
+| Email Subject | Generated email subject |
+| Email Body | Generated email content |
+| Status | Ready to Send / Sent / Replied |
+
+## Tips
+
+1. **Start small** - Use MAX_RESULTS=5 for testing
+2. **Target service industries** - Restaurants, clinics, salons score highest
+3. **Verify emails** - Not all Google Maps listings have emails
+4. **Review before sending** - Check generated emails for quality
+5. **Track responses** - Update Status column as you send
+
+## Troubleshooting
+
+### Apify Quota Exceeded
+- Check your Apify credit balance
+- Reduce MAX_RESULTS
+- Run during off-peak hours
+
+### Google Sheets Permission Denied
+- Ensure service account email is shared on the spreadsheet
+- Check JSON file path is correct
+
+### Claude CLI Not Found
+- Ensure claude is installed: `npm install -g @anthropic-ai/claude-code`
+- Run `claude` to verify it works
+
+## License
+
+Created by the orchestration team. Free to use and modify.

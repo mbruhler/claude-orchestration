@@ -1,35 +1,244 @@
 # UI Component Refinement Workflow
-# Iteratively refines UI components based on design inspirations until user accepts
+# Refines multiple UI components in parallel using specialized temp agents
+# Each component gets its own agent for parallel processing
 
-# Phase 1: Gather Requirements
-general-purpose:"Analyze the component that needs UI refinement. Identify: component name, current styling issues, desired aesthetic, framework/library used (React, Vue, etc), and any constraints (brand colors, accessibility). Document user's vision clearly.":requirements_gathered ->
+# ═══════════════════════════════════════════════════════════════════════════
+# PHASE 1: Discovery - Identify Components to Refine
+# ═══════════════════════════════════════════════════════════════════════════
 
-# Phase 2: Find Design Inspiration
-@refinement-loop ->
-web-searcher:"Search for UI design inspiration on Dribbble, Pinterest, and design galleries based on: {requirements_gathered}. Find 5-8 examples of similar components with modern, professional styling. Include links and describe key design elements (colors, spacing, typography, animations).":inspirations_found ->
+general-purpose:"Analyze the project and user requirements to identify which UI components need refinement.
 
-# Phase 3: Review Inspirations
-@review-inspirations ->
+For EACH component identified, provide:
+- Component name (e.g., 'Button', 'Card', 'Modal')
+- Current location (file path)
+- Current styling issues (what's wrong)
+- Desired aesthetic (what we want to achieve)
+- Framework/library used (React, Vue, Tailwind, CSS Modules, etc.)
+- Any constraints (brand colors, accessibility requirements)
 
-# Phase 4: Create Design Proposal
-general-purpose:"Based on selected inspirations and user feedback, create detailed design specification. Include: color palette (hex codes), spacing values, typography (fonts, sizes, weights), border radius, shadows, animations/transitions. Provide specific CSS/styling values that match the inspiration.":design_proposal ->
+Output as a structured list of components with all details.
 
-# Phase 5: Implement New Design
-general-purpose:"Implement the design proposal: {design_proposal} for the component. Update styling using the project's styling approach (CSS modules, Tailwind, styled-components, etc). Maintain component functionality while applying new visual design. Ensure responsive design and accessibility.":implementation_complete ->
+Ask user to confirm the list and add/remove components as needed.":components_identified ->
 
-# Phase 6: Quality Check
-general-purpose:"Review the implemented design changes. Verify: styling is consistent, code is clean, accessibility standards met (ARIA, contrast ratios), responsive on different screen sizes, no breaking changes to functionality. Suggest any improvements.":quality_checked ->
+# ═══════════════════════════════════════════════════════════════════════════
+# PHASE 2: Parallel Refinement - Each Component Gets Its Own Agent
+# ═══════════════════════════════════════════════════════════════════════════
+# Define temp agents for component-specific refinement
+# Each agent is responsible for the COMPLETE refinement workflow of ONE component
 
-# Phase 7: User Acceptance Decision
-@accept-or-refine ->
+@define-agents {
+  component-refiner-1: {
+    base: "general-purpose",
+    prompt: "UI/UX specialist focused on component design. You will refine ONE specific component through: design inspiration research, design proposal creation, implementation, and quality verification. Maintain component functionality while improving visual design. Ensure responsive design and accessibility (ARIA, contrast ratios). Provide file:line references for all changes.",
+    model: "sonnet"
+  },
 
-# Conditional Loop: If refinement needed, go back to refinement-loop
-# If accepted, workflow completes
-general-purpose:"Check user decision. If user accepted the design, mark as complete. If user requested refinements, prepare refinement notes for next iteration.":decision_processed ->
+  component-refiner-2: {
+    base: "general-purpose",
+    prompt: "UI/UX specialist focused on component design. You will refine ONE specific component through: design inspiration research, design proposal creation, implementation, and quality verification. Maintain component functionality while improving visual design. Ensure responsive design and accessibility (ARIA, contrast ratios). Provide file:line references for all changes.",
+    model: "sonnet"
+  },
 
-(if refinement-needed)~> @refinement-loop ->
+  component-refiner-3: {
+    base: "general-purpose",
+    prompt: "UI/UX specialist focused on component design. You will refine ONE specific component through: design inspiration research, design proposal creation, implementation, and quality verification. Maintain component functionality while improving visual design. Ensure responsive design and accessibility (ARIA, contrast ratios). Provide file:line references for all changes.",
+    model: "sonnet"
+  },
 
-# Phase 8: Finalize
-general-purpose:"Create summary of UI refinement: before/after comparison, files modified, design elements implemented. Suggest creating git commit with message format: 'style: refine [component-name] UI design'.":refinement_complete ->
+  component-refiner-4: {
+    base: "general-purpose",
+    prompt: "UI/UX specialist focused on component design. You will refine ONE specific component through: design inspiration research, design proposal creation, implementation, and quality verification. Maintain component functionality while improving visual design. Ensure responsive design and accessibility (ARIA, contrast ratios). Provide file:line references for all changes.",
+    model: "sonnet"
+  },
 
-@workflow-complete
+  component-refiner-5: {
+    base: "general-purpose",
+    prompt: "UI/UX specialist focused on component design. You will refine ONE specific component through: design inspiration research, design proposal creation, implementation, and quality verification. Maintain component functionality while improving visual design. Ensure responsive design and accessibility (ARIA, contrast ratios). Provide file:line references for all changes.",
+    model: "sonnet"
+  }
+}
+
+# Run refinement agents in parallel - each handles one component
+# NOTE: Only the agents for identified components will be used
+# If user has 2 components, only refiner-1 and refiner-2 will execute
+
+[
+  $component-refiner-1:"You are assigned to component: [FIRST COMPONENT from {components_identified}]
+
+**STEP 1: Design Inspiration Research**
+Search Dribbble, Pinterest, and design galleries for inspiration specific to this component type.
+Find 5-8 examples with modern, professional styling.
+Document: key design elements (colors, spacing, typography, animations), what makes each example special, source links.
+
+**STEP 2: Design Proposal**
+Based on inspirations and user requirements, create detailed design specification for THIS component:
+- Color palette (hex codes)
+- Spacing values (margin, padding)
+- Typography (fonts, sizes, weights)
+- Border radius, shadows, transitions
+- Specific CSS/styling values that match inspiration
+- How it fits with other components in the design system
+
+**STEP 3: Implementation**
+Implement the design proposal:
+- Update component file using project's styling approach (CSS modules, Tailwind, styled-components, etc.)
+- Maintain ALL existing functionality
+- Apply new visual design
+- Ensure responsive design (mobile, tablet, desktop)
+- Ensure accessibility (ARIA labels, keyboard navigation, contrast ratios)
+- Add comments explaining major design decisions
+
+**STEP 4: Quality Verification**
+Review your implementation:
+- Styling is consistent with design proposal
+- Code is clean and maintainable
+- Accessibility standards met (WCAG AA minimum)
+- Responsive on different screen sizes
+- No breaking changes to functionality
+- Component integrates well with design system
+
+**OUTPUT:**
+Provide comprehensive report:
+- Component name and file path
+- Design inspirations used (with links)
+- Design specification applied
+- Code changes made (file:line references)
+- Before/after visual description
+- Verification checklist completed":component_1_refined ||
+
+  $component-refiner-2:"You are assigned to component: [SECOND COMPONENT from {components_identified}]
+
+[Same instructions as component-refiner-1 but for the second component]":component_2_refined ||
+
+  $component-refiner-3:"You are assigned to component: [THIRD COMPONENT from {components_identified}]
+
+[Same instructions as component-refiner-1 but for the third component]":component_3_refined ||
+
+  $component-refiner-4:"You are assigned to component: [FOURTH COMPONENT from {components_identified}]
+
+[Same instructions as component-refiner-1 but for the fourth component]":component_4_refined ||
+
+  $component-refiner-5:"You are assigned to component: [FIFTH COMPONENT from {components_identified}]
+
+[Same instructions as component-refiner-1 but for the fifth component]":component_5_refined
+] ->
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PHASE 3: Aggregation - Consolidate All Results
+# ═══════════════════════════════════════════════════════════════════════════
+
+general-purpose:"Aggregate refinement results from all components:
+
+From: {component_1_refined}, {component_2_refined}, {component_3_refined}, {component_4_refined}, {component_5_refined}
+
+Create comprehensive summary:
+- List all components refined
+- Design elements implemented per component
+- All files modified (with file:line references)
+- Before/after comparisons for each component
+- Consistency check: do all components work together as a cohesive design system?
+- Any issues or warnings
+
+Present results to user for review.":aggregated_results ->
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PHASE 4: User Review Checkpoint
+# ═══════════════════════════════════════════════════════════════════════════
+
+@review-all-components:"
+## Component Refinement Results
+
+{aggregated_results}
+
+**Review all components above.**
+
+Options:
+- **Accept all** - All components look good, finalize the work
+- **Request changes** - Specify which components need adjustments and what changes
+- **Reject specific components** - Identify which components to revert or re-do
+
+What would you like to do?
+":user_feedback ->
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PHASE 5: Handle Feedback (Conditional)
+# ═══════════════════════════════════════════════════════════════════════════
+
+general-purpose:"Analyze user feedback: {user_feedback}
+
+If user accepted all components:
+- Set status: APPROVED
+- Prepare finalization
+
+If user requested changes:
+- Identify which specific components need changes
+- Document what changes are needed for each
+- Set status: NEEDS_REFINEMENT
+- List components and their required changes
+
+If user rejected specific components:
+- Identify which components to revert
+- Set status: NEEDS_REWORK
+- Document what to do with each component
+
+Output structured decision with next steps.":feedback_processed ->
+
+# Conditional: If refinements are needed, create re-refinement tasks
+(if needs-refinement)~> general-purpose:"Based on {feedback_processed}, apply the requested changes to specific components:
+
+For each component that needs changes:
+1. Review what changes were requested
+2. Apply those specific changes to the component
+3. Verify the changes meet user expectations
+4. Document what was changed
+
+Provide updated report for modified components.":changes_applied ->
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PHASE 6: Finalization
+# ═══════════════════════════════════════════════════════════════════════════
+
+general-purpose:"Create final summary of UI refinement work:
+
+**Components Refined:**
+List all components with their file paths
+
+**Design Elements Implemented:**
+Summarize the design system updates made
+
+**Files Modified:**
+Complete list of all modified files with brief description of changes
+
+**Before/After Comparison:**
+High-level summary of visual improvements
+
+**Next Steps:**
+Suggest:
+- Testing the components in the application
+- Updating design system documentation
+- Creating git commit with message: 'style: refine UI components - [component names]'
+- Sharing the changes with the team
+
+Provide git commit command with all modified files.":refinement_complete ->
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PHASE 7: Completion
+# ═══════════════════════════════════════════════════════════════════════════
+
+@workflow-complete:"
+## UI Refinement Complete
+
+{refinement_complete}
+
+All components have been refined and are ready for testing.
+"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NOTES
+# ═══════════════════════════════════════════════════════════════════════════
+
+# This workflow handles 1-5 components in a single run.
+# Unused agents (e.g., if only 2 components) will simply not execute.
+# Each component is processed in PARALLEL for maximum efficiency.
+# User reviews ALL components at once rather than one-by-one.
+# If > 5 components needed, run workflow multiple times or extend agent definitions.

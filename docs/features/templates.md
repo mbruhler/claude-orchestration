@@ -1,6 +1,12 @@
 # Template System
 
-Templates are reusable workflow definitions stored as `.flow` files in `~/.claude/workflows/`.
+Templates are reusable workflow definitions stored as `.flow` files. Templates are searched in the following locations (in order of priority):
+
+1. **Project root**: `./workflows/*.flow` - Project-specific templates
+2. **Claude root**: `~/.claude/workflows/*.flow` - User's global templates
+3. **Plugin examples**: `~/.claude/plugins/repos/orchestration/examples/*.flow` - Built-in examples
+
+The first matching template found is used. Project-local templates take precedence over global templates.
 
 ## Template File Format
 
@@ -34,9 +40,9 @@ behavior: How it works
 
 ### Load Template
 
-1. List all `.flow` files in `~/.claude/workflows/`
-2. Display with descriptions
-3. Allow selection
+1. Search for template in all locations (project root, Claude root, plugin examples)
+2. Use first matching template found
+3. Display with descriptions
 4. Prompt for parameter values (show defaults)
 5. Substitute parameters into workflow
 6. Execute resulting workflow
@@ -48,12 +54,15 @@ behavior: How it works
 3. Identify potential parameters (strings in quotes)
 4. Ask user to confirm which should be parameters
 5. Prompt for template name and description
-6. Write template to `~/.claude/workflows/[name].flow`
-7. Confirm creation
+6. Ask where to save:
+   - `./workflows/` for project-specific
+   - `~/.claude/workflows/` for global
+7. Write template to selected location
+8. Confirm creation
 
 ### List Templates
 
-Scan `~/.claude/workflows/` for `.flow` files and display:
+Scan all template locations for `.flow` files and display (grouped by location):
 
 ```
 Name              Description                    Params
@@ -312,21 +321,28 @@ prompt: Deployment failed and was rolled back. Review errors before retry.
 - Name to avoid conflicts with built-ins
 
 **Organization:**
-- Group related templates in subdirectories (if supported)
+- Store project-specific templates in `./workflows/`
+- Store user's global templates in `~/.claude/workflows/`
 - Use consistent naming conventions
 - Include README in workflows directory
-- Version control your templates
-- Share useful templates with team
+- Version control project templates with your project
+- Share useful templates with team via global location
 
 ## Template Discovery
 
 To help users find templates, the system can:
 
-1. List all available templates with descriptions
-2. Search templates by keyword
+1. List all available templates from all locations with descriptions
+2. Search templates by keyword across all locations
 3. Show template usage examples
 4. Display template parameters and defaults
 5. Preview template workflow before execution
+6. Group templates by location (project, global, examples)
+
+**Search Order:**
+- Project templates (`./workflows/`) are shown first and take priority
+- Global templates (`~/.claude/workflows/`) are shown next
+- Plugin examples are shown last
 
 ## Subworkflows (Calling Templates)
 

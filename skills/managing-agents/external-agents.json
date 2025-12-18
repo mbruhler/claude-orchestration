@@ -1,0 +1,31 @@
+{
+  "externalAgents": {},
+  "lastUpdated": "2025-11-28T00:00:00.000Z",
+  "availableForImport": {
+    "implementation-architect": {
+      "path": "~/.claude/agents/implementation-architect.md",
+      "description": "Plans detailed implementation of features, systems, or components before coding",
+      "discovered": "2025-11-28"
+    },
+    "jwt-keycloak-security-auditor": {
+      "path": "~/.claude/agents/jwt-keycloak-security-auditor.md",
+      "description": "Audits and enhances security of JWT authentication and Keycloak implementations",
+      "discovered": "2025-11-28"
+    },
+    "code-optimizer": {
+      "path": "~/.claude/agents/code-optimizer.md",
+      "description": "Improves performance and efficiency of existing code",
+      "discovered": "2025-11-28"
+    },
+    "react-native-component-reviewer": {
+      "path": "~/.claude/agents/react-native-component-reviewer.md",
+      "description": "Reviews React Native component code for adherence to single responsibility principle",
+      "discovered": "2025-11-28"
+    },
+    "expert-code-implementer": {
+      "path": "~/.claude/agents/expert-code-implementer.md",
+      "description": "Implements specific coding tasks or features based on requirements",
+      "discovered": "2025-11-28"
+    }
+  }
+}

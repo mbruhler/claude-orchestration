@@ -5,8 +5,8 @@ Temp agents are ephemeral, workflow-specific agents that I create automatically 
 ## What Are Temp Agents?
 
 **Temp agents** are custom agents created for specific workflows:
-- Stored in `temp-agents/` directory
-- Automatically cleaned up after workflow execution
+- Stored in `./temp-agents/` directory (in current working directory)
+- Cleaned up after workflow execution (with user confirmation)
 - Can be promoted to permanent agents if useful
 - Namespaced with `orchestration:` prefix
 
@@ -306,7 +306,7 @@ $security-scanner:"Scan for vulnerabilities":results
 
 **2. Define inline** (I'll create the file):
 ```flow
-# I'll create temp-agents/security-scanner.md during workflow execution
+# I'll create ./temp-agents/security-scanner.md during workflow execution
 $security-scanner:"Scan for vulnerabilities":results
 ```
 
@@ -359,7 +359,7 @@ Would you like to save any as permanent agents?
 ```
 Workflow Design
     ↓
-I create temp-agents/agent-name.md
+I create ./temp-agents/agent-name.md (in current working directory)
     ↓
 Workflow Execution
     ↓
@@ -371,10 +371,10 @@ Agent Promotion Prompt
     ↓
 User chooses: Save or Discard
     ↓
-Cleanup Phase
+Cleanup Phase (asks user: "Delete temp files?")
     ↓
 Saved: Moved to agents/
-Discarded: Deleted
+Discarded: Deleted (if user confirms)
 ```
 
 ## Namespace Handling
@@ -390,7 +390,7 @@ $news-analyzer:"Analyze news"
 ```javascript
 Task({
   subagent_type: "orchestration:news-analyzer",
-  prompt: /* loaded from temp-agents/news-analyzer.md */ + "\n\n" + "Analyze news"
+  prompt: /* loaded from ./temp-agents/news-analyzer.md */ + "\n\n" + "Analyze news"
 })
 ```
 

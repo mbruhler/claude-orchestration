@@ -1,0 +1,575 @@
+---
+name: "UI Refiner - Award Winning Layouts"
+description: |
+  Creates stunning, unique, and award-winning UI layouts that bypass typical AI training data limitations.
+  This workflow hunts for cutting-edge inspiration across award sites, curated collections, and real products,
+  then applies anti-pattern detection and contrast analysis to ensure the output is genuinely unique -
+  not generic AI slop.
+
+  The workflow interviews users about their specific needs, builds a "boring baseline" of patterns to avoid,
+  and generates designs that measurably differentiate from common templates. Implementation uses Next.js,
+  TypeScript, Framer Motion, with a hybrid component approach: shadcn/ui (aggressively customized) for
+  complex logic + fully custom components for hero visual elements.
+
+  Perfect for landing pages, app UIs, marketing sites, and any project where standing out matters.
+author: "orchestration"
+version: "1.0"
+tags: ["ui-design", "landing-page", "next.js", "framer-motion", "shadcn", "award-winning", "anti-ai-slop"]
+workflow: |
+  # UI Refiner - Award Winning Layouts
+  # Creates unique, stunning designs by hunting inspiration and actively avoiding generic patterns
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PHASE 1: INSPIRATION HUNTING (Parallel)
+  # Cast a wide net across award sites, curated collections, and real products
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  [
+    # Award Sites - Cutting edge, experimental designs
+    general-purpose:"Search Awwwards.com, CSS Design Awards (cssdesignawards.com), and FWA (thefwa.com) for the latest winning sites from the past 3 months. Focus on: unconventional layouts, innovative scroll interactions, unique typography treatments, bold color combinations, creative micro-interactions. Extract 5-7 specific techniques with URLs and descriptions of what makes each special. Prioritize sites that break conventions.":award_inspiration ||
+
+    # Curated Collections - Broader variety and patterns
+    general-purpose:"Search Dribbble, Behance, Mobbin, and Land-book for trending UI designs. Look for: unexpected grid breaks, asymmetric layouts, creative negative space usage, innovative navigation patterns, unique card designs that aren't boring rectangles. Extract 5-7 specific patterns with visual descriptions and source links. Avoid anything that looks template-like.":curated_inspiration ||
+
+    # Real Products - Proven, polished patterns from top companies
+    general-purpose:"Analyze the current designs of Stripe, Linear, Vercel, Apple, Raycast, and Arc browser. Document: their signature design elements, how they create visual hierarchy, animation philosophy, typography systems, what makes each feel premium. Extract specific implementable techniques, not vague observations.":product_inspiration
+  ] ->
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PHASE 2: ANTI-PATTERN DATABASE
+  # Build the "boring baseline" - patterns we must actively avoid
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  general-purpose:"Create a comprehensive 'AI Slop Detection Database' - patterns that are overused and signal generic AI-generated design. Include:
+
+  LAYOUT ANTI-PATTERNS:
+  - Centered hero with gradient background and floating mockup
+  - Three-column feature grid with icons above text
+  - Testimonial carousel with circular avatars
+  - Pricing table with 'Popular' badge on middle tier
+  - Footer with 4 equal columns of links
+  - 'As seen in' logo bar with grayscale logos
+
+  VISUAL ANTI-PATTERNS:
+  - Purple-to-blue or pink-to-orange gradients
+  - Glassmorphism cards with blur backdrop
+  - Generic blob shapes as decorative elements
+  - Stock illustration style (Humaaans, unDraw aesthetic)
+  - Perfectly symmetrical layouts
+  - Drop shadows that look like default Tailwind
+
+  ANIMATION ANTI-PATTERNS:
+  - Fade-up on scroll for every element
+  - Typewriter effect on hero text
+  - Floating/bobbing decorative elements
+  - Generic hover scale on cards (scale-105)
+
+  TYPOGRAPHY ANTI-PATTERNS:
+  - Inter or Poppins as primary font
+  - 'Supercharge your workflow' style headlines
+  - Gradient text on dark backgrounds
+
+  For each anti-pattern, note WHY it's overused and what the unique alternative approaches could be. This database will be used to score designs.":anti_pattern_db ->
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PHASE 3: USER INTERVIEW
+  # Gather specific requirements through targeted questions
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  @user-interview:"
+  ## Let's Design Something Unique
+
+  Based on inspiration from {award_inspiration}, {curated_inspiration}, and {product_inspiration}, I have fresh ideas ready.
+
+  **Please answer these questions:**
+
+  1. **What are you building?** (Landing page, app dashboard, marketing site, portfolio, SaaS product, etc.)
+
+  2. **Who is your audience?** (Developers, designers, executives, consumers, specific industry?)
+
+  3. **What mood/feeling should it evoke?** (Bold & energetic, calm & premium, playful & fun, serious & trustworthy, futuristic & cutting-edge?)
+
+  4. **What are the key sections/pages needed?** (Hero, features, pricing, testimonials, about, contact, dashboard views, etc.)
+
+  5. **Any brand constraints?** (Existing colors, fonts, logo, tone of voice - or starting fresh?)
+
+  6. **What sites do YOU love?** (Share 2-3 URLs of designs that resonate with you - helps calibrate taste)
+
+  7. **What should it absolutely NOT look like?** (Competitors to differentiate from, styles you hate?)
+  ":user_requirements ->
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PHASE 4: DESIGN CONCEPT GENERATION
+  # Create unique design direction based on inspiration + requirements
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  general-purpose:"Based on:
+  - User requirements: {user_requirements}
+  - Award site inspiration: {award_inspiration}
+  - Curated collection inspiration: {curated_inspiration}
+  - Product inspiration: {product_inspiration}
+  - Anti-patterns to avoid: {anti_pattern_db}
+
+  Generate THREE distinct design concepts. For each concept provide:
+
+  **CONCEPT NAME & THEME**
+  - One-line description of the visual direction
+
+  **LAYOUT STRATEGY**
+  - Grid system (unconventional approaches encouraged)
+  - How sections flow and connect
+  - Specific scroll behavior ideas
+
+  **TYPOGRAPHY SYSTEM**
+  - Primary + secondary fonts (avoid Inter, Poppins - suggest unique pairings)
+  - Size scale philosophy
+  - Any experimental text treatments
+
+  **COLOR PHILOSOPHY**
+  - Not just a palette - the reasoning and mood
+  - How colors interact and transition
+  - Accent usage strategy
+
+  **SIGNATURE ELEMENTS**
+  - 2-3 unique visual elements that will make this design memorable
+  - Reference specific inspirations that informed each element
+
+  **ANIMATION PHILOSOPHY**
+  - Overall motion personality
+  - Key moments for animation
+  - Specific Framer Motion techniques to use
+
+  **ANTI-PATTERN SCORE**
+  - Check each concept against the anti-pattern database
+  - Score 0-10 (10 = completely unique, 0 = generic AI slop)
+  - Explain what makes it different
+
+  Be specific and implementable. Reference exact techniques from the inspiration research.":design_concepts ->
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PHASE 5: CONCEPT SELECTION & REFINEMENT
+  # User picks direction, we refine and validate uniqueness
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  @select-concept:"
+  ## Three Design Concepts
+
+  {design_concepts}
+
+  **Which concept resonates most?**
+  - Pick a number (1, 2, or 3)
+  - Or say 'mix' and describe which elements from each you'd like to combine
+  - Feel free to add modifications or push any direction further
+  ":selected_concept ->
+
+  general-purpose:"Based on selection: {selected_concept}
+
+  Create a DETAILED DESIGN SPECIFICATION including:
+
+  **FINAL DESIGN DIRECTION**
+  - Refined concept incorporating user feedback
+
+  **SECTION-BY-SECTION BREAKDOWN**
+  For each section the user needs:
+  - Exact layout description (with measurements/ratios)
+  - Content hierarchy
+  - Unique visual treatment for that section
+  - Animation behavior on scroll/interaction
+  - Mobile adaptation strategy
+
+  **COMPONENT INVENTORY**
+  List every component needed:
+  - Which use shadcn/ui (with custom styling notes)
+  - Which are fully custom (with implementation approach)
+  - Shared animation variants
+
+  **TYPOGRAPHY SPEC**
+  - Exact fonts with Google Fonts or source links
+  - Complete type scale (px values)
+  - Line heights, letter spacing
+
+  **COLOR SPEC**
+  - Full palette with hex values
+  - CSS custom properties structure
+  - Dark mode strategy (if applicable)
+
+  **ANIMATION SPEC**
+  - Framer Motion variants to create
+  - Timing functions and durations
+  - Scroll-triggered animation breakpoints
+
+  **CONTRAST ANALYSIS**
+  Compare this final design against {anti_pattern_db}:
+  - Pattern-by-pattern comparison
+  - Overall uniqueness score (must be 7+ to proceed)
+  - Specific elements that differentiate this design
+
+  If uniqueness score is below 7, automatically suggest modifications to push it higher.":final_design_spec ->
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PHASE 6: IMPLEMENTATION PLANNING
+  # Break down into implementable tasks
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  @approve-design:"
+  ## Final Design Specification
+
+  {final_design_spec}
+
+  **Ready to implement?**
+  - Type 'go' to proceed with code generation
+  - Or provide feedback to refine further
+  ":implementation_approval ->
+
+  general-purpose:"Based on approved design: {final_design_spec}
+
+  Create implementation plan:
+
+  **PROJECT STRUCTURE**
+  ```
+  /app
+  /components
+    /ui (shadcn - customized)
+    /sections (page sections)
+    /animations (shared Framer variants)
+  /lib
+  /styles
+  ```
+
+  **IMPLEMENTATION ORDER**
+  1. Base setup (fonts, colors, global styles)
+  2. Animation system (shared variants)
+  3. Shadcn components with custom styling
+  4. Custom hero/visual components
+  5. Page sections assembly
+  6. Scroll animations and interactions
+  7. Responsive refinements
+  8. Performance optimization
+
+  **SHADCN COMPONENTS NEEDED**
+  List with `npx shadcn@latest add` commands
+
+  **CUSTOM COMPONENTS SPEC**
+  For each custom component:
+  - Props interface
+  - Animation variants
+  - Key implementation notes
+
+  **API ROUTES NEEDED**
+  If any (contact forms, etc.)
+  ":implementation_plan ->
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PHASE 7: CODE GENERATION (Parallel where possible)
+  # Generate the actual Next.js implementation
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  [
+    # Base setup and styling
+    general-purpose:"Based on {implementation_plan} and {final_design_spec}, create:
+    1. tailwind.config.ts with custom theme (colors, fonts, animations)
+    2. globals.css with CSS custom properties and base styles
+    3. Font loading setup in layout.tsx
+    4. Shared animation variants file for Framer Motion
+    Make styling aggressive and unique - no default Tailwind look should survive.":base_setup ||
+
+    # Shadcn customization
+    general-purpose:"Based on {implementation_plan}, install and HEAVILY customize shadcn components:
+    1. Add required shadcn components
+    2. Modify each component's styling to match {final_design_spec}
+    3. Create custom variants where needed
+    4. Ensure no component looks like default shadcn
+    Document all customizations.":shadcn_setup
+  ] ->
+
+  # Custom components (after base is ready)
+  general-purpose:"Based on {implementation_plan} and {final_design_spec}, create all custom components:
+  - Hero sections with unique layouts
+  - Custom visual elements (the signature pieces)
+  - Animated section wrappers
+  - Any experimental UI elements from the design
+
+  Use Framer Motion extensively. Reference specific inspiration techniques from {award_inspiration}, {curated_inspiration}, {product_inspiration}.
+
+  Each component should:
+  - Be fully typed with TypeScript
+  - Include animation variants
+  - Handle responsive design
+  - Be production-ready quality":custom_components ->
+
+  # Page assembly
+  general-purpose:"Assemble all components into complete pages:
+  - Import and compose sections
+  - Add scroll-triggered animations
+  - Implement page transitions if multi-page
+  - Create any needed API routes
+  - Ensure smooth mobile experience
+
+  Based on: {base_setup}, {shadcn_setup}, {custom_components}, {final_design_spec}":page_assembly ->
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PHASE 8: QUALITY VALIDATION
+  # Final check against anti-patterns and quality standards
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  general-purpose:"Perform final quality validation on {page_assembly}:
+
+  **ANTI-PATTERN AUDIT**
+  Check implementation against {anti_pattern_db}:
+  - Does any component look generic?
+  - Are animations unique or default fade-ups?
+  - Does typography stand out?
+  - Is the color usage distinctive?
+
+  **TECHNICAL AUDIT**
+  - TypeScript errors?
+  - Missing Framer Motion animations?
+  - Responsive breakpoint issues?
+  - Performance concerns (large bundles, layout shifts)?
+
+  **UNIQUENESS SCORE**
+  Final 0-10 rating with justification
+
+  If score < 8, list specific fixes needed.":quality_audit ->
+
+  @final-review:"
+  ## Implementation Complete
+
+  **Quality Audit Results:**
+  {quality_audit}
+
+  **Files Created:**
+  Summary of all generated files and their purposes.
+
+  ---
+
+  Would you like to:
+  - 'refine' - Push specific elements to be more unique
+  - 'done' - Accept the implementation
+  - Ask specific questions about any component
+  ":final_decision
+
+visualization: |
+  ╔════════════════════════════════════════════════════════════════════════════╗
+  ║  UI Refiner - Award Winning Layouts                                        ║
+  ╠════════════════════════════════════════════════════════════════════════════╣
+  ║                                                                            ║
+  ║  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐            ║
+  ║  │ Award Sites     │  │ Curated         │  │ Real Products   │            ║
+  ║  │ (Awwwards, FWA) │  │ (Dribbble...)   │  │ (Stripe...)     │            ║
+  ║  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘            ║
+  ║           │                    │                    │                      ║
+  ║           └────────────────────┼────────────────────┘                      ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  Anti-Pattern Database │                              ║
+  ║                    │  (AI Slop Detection)   │                              ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  @ User Interview      │ ◄── Questions about project  ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  3 Design Concepts     │                              ║
+  ║                    │  + Uniqueness Scores   │                              ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  @ Select Concept      │ ◄── Pick or mix              ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  Detailed Design Spec  │                              ║
+  ║                    │  + Contrast Analysis   │                              ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  @ Approve Design      │ ◄── Go / Refine              ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║           ┌────────────────────┴────────────────────┐                      ║
+  ║           ▼                                         ▼                      ║
+  ║  ┌─────────────────┐                    ┌─────────────────┐                ║
+  ║  │ Base Setup      │                    │ Shadcn Custom   │                ║
+  ║  │ (Tailwind, CSS) │                    │ (Heavy Styling) │                ║
+  ║  └────────┬────────┘                    └────────┬────────┘                ║
+  ║           └────────────────────┬────────────────────┘                      ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  Custom Components     │                              ║
+  ║                    │  (Hero, Visual FX)     │                              ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  Page Assembly         │                              ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  Quality Validation    │                              ║
+  ║                    │  (Anti-Pattern Audit)  │                              ║
+  ║                    └───────────┬───────────┘                               ║
+  ║                                ▼                                           ║
+  ║                    ┌───────────────────────┐                               ║
+  ║                    │  @ Final Review        │ ◄── Done / Refine            ║
+  ║                    └───────────────────────┘                               ║
+  ║                                                                            ║
+  ╠════════════════════════════════════════════════════════════════════════════╣
+  ║ Stack: Next.js • TypeScript • Framer Motion • Shadcn (customized)          ║
+  ║ Goal: Uniqueness score 8+ • Zero AI slop • Award-worthy output             ║
+  ╚════════════════════════════════════════════════════════════════════════════╝
+---
+
+# UI Refiner - Award Winning Layouts
+
+## Overview
+
+This workflow creates stunning, unique UI layouts that actively avoid generic AI-generated patterns. It combines inspiration hunting, anti-pattern detection, contrast analysis, and human checkpoints to ensure every output is genuinely distinctive.
+
+## What Makes This Different
+
+Most AI-generated UIs fall into predictable patterns: centered heroes with gradient backgrounds, three-column feature grids, purple-to-blue color schemes. This workflow:
+
+1. **Actively detects and avoids** these patterns with an anti-pattern database
+2. **Scores designs on uniqueness** and requires a threshold before proceeding
+3. **Hunts fresh inspiration** from award sites, not training data
+4. **Multiple human checkpoints** to catch generic output early
+
+## Prerequisites
+
+- Node.js 18+
+- A Next.js project (or will create one)
+- Internet access for inspiration hunting
+
+## Usage
+
+```bash
+/orchestration:template ui-refiner-award-winning
+```
+
+Or run directly:
+```bash
+/orchestration:run < examples/ui-refiner-award-winning.flow
+```
+
+## Workflow Phases
+
+### Phase 1: Inspiration Hunting (Parallel)
+Three agents simultaneously search:
+- **Award sites**: Awwwards, CSS Design Awards, FWA
+- **Curated collections**: Dribbble, Behance, Mobbin, Land-book
+- **Real products**: Stripe, Linear, Vercel, Apple, Raycast, Arc
+
+### Phase 2: Anti-Pattern Database
+Builds comprehensive list of "AI slop" patterns to avoid:
+- Layout clichés (centered hero + floating mockup)
+- Visual clichés (purple gradients, glassmorphism)
+- Animation clichés (fade-up on everything)
+- Typography clichés (Inter font, "Supercharge your X")
+
+### Phase 3: User Interview
+Gathers your specific requirements:
+- What you're building
+- Target audience
+- Desired mood/feeling
+- Key sections needed
+- Brand constraints
+- Sites you love/hate
+
+### Phase 4: Design Concepts
+Generates THREE distinct concepts, each with:
+- Layout strategy
+- Typography system
+- Color philosophy
+- Signature elements
+- Animation philosophy
+- **Anti-pattern score** (must be high to proceed)
+
+### Phase 5: Concept Selection
+You pick a direction (or mix elements), then the workflow creates a detailed spec with **contrast analysis** against the anti-pattern database.
+
+### Phase 6: Implementation Planning
+Breaks down into tasks:
+- Project structure
+- Shadcn components needed
+- Custom components spec
+- Animation system design
+
+### Phase 7: Code Generation (Parallel)
+Generates actual code:
+- Base setup (Tailwind config, global styles, fonts)
+- Shadcn with **aggressive customization**
+- Fully custom hero/visual components
+- Complete page assembly
+
+### Phase 8: Quality Validation
+Final audit:
+- Anti-pattern check on implemented code
+- Technical quality review
+- **Final uniqueness score** (must be 8+)
+
+## Tech Stack
+
+- **Framework**: Next.js with App Router
+- **Language**: TypeScript (strict)
+- **Styling**: Tailwind CSS
+- **Components**: Shadcn/ui (heavily customized) + custom components
+- **Animations**: Framer Motion
+- **API**: Next.js API routes where needed
+
+## Component Philosophy
+
+| Component Type | Approach |
+|---------------|----------|
+| Complex logic (modals, dropdowns, forms) | Shadcn/ui with aggressive custom styling |
+| Visual hero elements | Fully custom, unique designs |
+| Animations | Framer Motion with custom variants |
+
+**Key principle**: No component should look like its default. Every shadcn component gets restyled to match the unique design direction.
+
+## Anti-Pattern Examples
+
+The workflow actively avoids:
+
+```
+❌ Hero with centered text + gradient + floating mockup
+✅ Asymmetric layout with unexpected text placement
+
+❌ Three identical feature cards in a row
+✅ Varied card sizes, overlapping elements, dynamic grid
+
+❌ fade-up animation on every scroll
+✅ Contextual animations that serve the content
+
+❌ Inter or Poppins font
+✅ Distinctive font pairing that matches the mood
+```
+
+## Customization
+
+### Adjust Uniqueness Threshold
+The workflow requires uniqueness score of 7+ for design approval and 8+ for final implementation. Modify these in the checkpoint prompts if needed.
+
+### Add More Inspiration Sources
+Edit the parallel inspiration phase to include additional sources relevant to your niche.
+
+### Modify Anti-Pattern List
+The anti-pattern database is generated fresh each run, but you can add specific patterns you want to avoid in the user interview phase.
+
+## Tips for Best Results
+
+1. **Be specific in the interview** - "Professional but approachable" is better than "nice looking"
+2. **Share sites you love** - Helps calibrate the aesthetic direction
+3. **Don't settle** - If concepts feel generic, push for more iterations
+4. **Trust the scores** - Low uniqueness scores mean it needs more work
+
+## Example Output
+
+After running this workflow, you'll have:
+- Complete Next.js project structure
+- Customized Tailwind configuration
+- Styled shadcn components
+- Custom hero and visual components
+- Framer Motion animation system
+- Responsive, production-ready code
+- Documentation of design decisions

@@ -64,7 +64,7 @@ if (input.startsWith('---')) {
 ### Phase 0: Pre-Parse (Temporary Agents)
 
 **Reference:** `${CLAUDE_PLUGIN_ROOT}/docs/features/temporary-agents.md`
-**Registry:** `${CLAUDE_PLUGIN_ROOT}/temp-agents/`
+**Registry:** `./temp-agents/` (in current working directory)
 
 If workflow contains temporary agent syntax (`$agent-name`):
 
@@ -190,7 +190,7 @@ If no static visualization is provided, generate and display ASCII art visualiza
 ### Phase 3: Execute
 
 **Reference:** `${CLAUDE_PLUGIN_ROOT}/docs/core/executor.md`
-**Temp Agents:** `${CLAUDE_PLUGIN_ROOT}/temp-agents/`
+**Temp Agents:** `./temp-agents/` (in current working directory)
 
 **Algorithm:**
 1. Initialize all nodes to ○ pending
@@ -224,7 +224,7 @@ Plugin agents MUST be prefixed with `orchestration:` namespace:
 **Namespace Rules:**
 1. **Built-in agents**: No prefix (Explore, general-purpose, code-reviewer, etc.)
 2. **Plugin agents**: Always prefix with `orchestration:`
-3. **Temp agents**: Automatically prefixed with `orchestration:` when loaded from temp-agents/
+3. **Temp agents**: Automatically prefixed with `orchestration:` when loaded from ./temp-agents/
 4. **Agent resolution**: Check built-ins first, then try with `orchestration:` prefix
 
 **Example:**
@@ -491,85 +491,78 @@ console.log(`Cleaned up ${deleted.length} temp agent(s)`);
 
 ---
 
-### Phase 8: Cleanup Temporary Files
+### Phase 8: Cleanup Temporary Files (CONDITIONAL)
 
-**IMPORTANT**: After workflow completion (regardless of success/failure), clean up ALL temporary files.
+**IMPORTANT**: After workflow completion, check for temporary files and ask user before deleting.
 
 #### What to Clean
 
+Temporary files are created in the **current working directory** (NOT plugin folder):
+
 1. **Temporary Agent Files** (if not promoted in Phase 7)
-   - Location: `${CLAUDE_PLUGIN_ROOT}/temp-agents/*.md`
+   - Location: `./temp-agents/*.md`
    - Delete ALL `.md` files that were created for this workflow
-   - Keep only pre-existing temp agents (if any)
 
-2. **Temporary JSON Files**
-   - Location: `${CLAUDE_PLUGIN_ROOT}/examples/*.json`
-   - Delete ALL `.json` files (these are intermediate data files)
-   - Keep only `.flow` workflow templates
+2. **Temporary Scripts**
+   - Location: `./temp-scripts/*`
+   - Delete ALL Python, JS, shell scripts
 
-#### Implementation
+3. **Temporary JSON Files**
+   - Location: `./examples/*.json`
+   - Delete ALL `.json` files (keep `.flow` templates!)
 
-```javascript
-// After Phase 7 (Agent Promotion) or if no temp agents were used
+#### Step 1: Detect Temporary Files
 
-async function cleanupTemporaryFiles() {
-  const cleanupTasks = [];
-
-  // IMPORTANT: Use ${CLAUDE_PLUGIN_ROOT} for plugin workspace paths!
-
-  // 1. Clean up temp-scripts (Python, JS, shell scripts created during workflow)
-  const tempScriptFiles = Glob({
-    pattern: "**/*",
-    path: "${CLAUDE_PLUGIN_ROOT}/temp-scripts/"
-  });
-
-  for (const file of tempScriptFiles) {
-    Bash({ command: `rm "${file}"` });
-    cleanupTasks.push(file);
-  }
-
-  // 2. Clean up temp agents markdown files (if not promoted)
-  const tempAgentFiles = Glob({
-    pattern: "*.md",
-    path: "${CLAUDE_PLUGIN_ROOT}/temp-agents/"
-  });
-
-  for (const file of tempAgentFiles) {
-    Bash({ command: `rm "${file}"` });
-    cleanupTasks.push(file);
-  }
-
-  // 3. Clean up temporary JSON files in examples/ (workflow state files)
-  const tempJsonFiles = Glob({
-    pattern: "*.json",
-    path: "${CLAUDE_PLUGIN_ROOT}/examples/"
-  });
-
-  for (const file of tempJsonFiles) {
-    Bash({ command: `rm "${file}"` });
-    cleanupTasks.push(file);
-  }
-
-  // 4. Report cleanup
-  if (cleanupTasks.length > 0) {
-    console.log(`\n🧹 Cleaned up ${cleanupTasks.length} temporary file(s):`);
-    cleanupTasks.forEach(file => {
-      console.log(`   - ${file.replace('${CLAUDE_PLUGIN_ROOT}/', '')}`);
-    });
-  } else {
-    console.log(`\n✨ No temporary files to clean up`);
-  }
-}
-
-// Execute cleanup - MANDATORY after every workflow
-await cleanupTemporaryFiles();
+```bash
+TEMP_AGENTS=$(ls ./temp-agents/*.md 2>/dev/null | wc -l)
+TEMP_SCRIPTS=$(ls ./temp-scripts/* 2>/dev/null | wc -l)
+TEMP_JSON=$(ls ./examples/*.json 2>/dev/null | wc -l)
+TOTAL=$((TEMP_AGENTS + TEMP_SCRIPTS + TEMP_JSON))
 ```
 
-#### When to Clean
+#### Step 2: If Files Exist, Ask User
 
-- **Always**: After workflow completion (success or failure)
-- **Exception**: Don't delete files if user explicitly requests to keep them
-- **Timing**: After agent promotion phase, before final completion message
+**Only if `TOTAL > 0`**, use AskUserQuestion:
+
+```javascript
+AskUserQuestion({
+  questions: [{
+    question: "Found ${TOTAL} temporary files. Do you want to delete them?",
+    header: "Cleanup",
+    multiSelect: false,
+    options: [
+      {label: "Yes, delete all", description: "Remove all temporary files"},
+      {label: "Show me first", description: "List files before deciding"},
+      {label: "No, keep them", description: "Leave files for manual review"}
+    ]
+  }]
+})
+```
+
+#### Step 3: Execute Cleanup if Confirmed
+
+```bash
+# Delete temp-agents (in current working directory)
+rm -f ./temp-agents/*.md
+
+# Delete temp-scripts (in current working directory)
+rm -rf ./temp-scripts/*
+
+# Delete temporary JSON only (keep .flow files!)
+rm -f ./examples/*.json
+```
+
+Report what was deleted:
+```
+Cleaned up ${TOTAL} temporary files:
+- ${TEMP_AGENTS} temp agents removed
+- ${TEMP_SCRIPTS} temp scripts removed
+- ${TEMP_JSON} temporary JSON files removed
+```
+
+#### Step 4: Skip if No Files
+
+If `TOTAL == 0`, skip cleanup silently (don't bother user).
 
 #### User Notification
 
@@ -581,7 +574,7 @@ await cleanupTemporaryFiles();
 ║  Completed: 11 ✓                           ║
 ║  Duration: 3m 45s                          ║
 ╠════════════════════════════════════════════╣
-║  🧹 Cleanup: 3 temporary files removed     ║
+║  Cleanup: 3 temporary files removed        ║
 ╠════════════════════════════════════════════╣
 ║  Next steps:                               ║
 ╚════════════════════════════════════════════╝
@@ -656,4 +649,4 @@ Maintain execution state throughout:
 - `${CLAUDE_PLUGIN_ROOT}/agents/registry.json` - Defined agents registry
 - `${CLAUDE_PLUGIN_ROOT}/agents/workflow-socratic-designer.md` - Socratic workflow designer
 - `${CLAUDE_PLUGIN_ROOT}/agents/workflow-syntax-designer.md` - Syntax designer
-- `${CLAUDE_PLUGIN_ROOT}/temp-agents/` - Temporary agent definitions
+- `./temp-agents/` - Temporary agent definitions (in current working directory)
