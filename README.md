@@ -4,6 +4,11 @@
 
 ### If you like the project, consider ⭐ it!<br/>
 
+Check out my new SaaS VideoEffectVibe - turn prompts into editable, configurable overlays, texts, lower thirds. Forget boring templates, make it custom and yours, from just a prompt!
+
+[Video Effect Vibe - Click to go to the website](https://videoeffectvibe.com)
+
+
 ## **Multi-agent workflow orchestration.** Chain AI agents to automate complex tasks using natural language or declarative syntax.
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-blue)](https://claude.com/claude-code)
