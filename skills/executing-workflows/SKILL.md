@@ -69,17 +69,28 @@ Execution Graph:
 +-----------------+
 ```
 
-### Phase 3: Execute
+### Phase 3: Execute & Save State (Snapshots)
 
-I run agents sequentially or in parallel:
+I run agents sequentially or in parallel. **Crucially, I maintain a local execution state file** to ensure reliability and enable "Time-Travel" recovery.
+
+1.  Before starting, I create/update `.orchestration/state.json` in the current working directory.
+2.  After EVERY successful node execution, I update the `state.json` with captured variables and the node's `completed` status.
+3.  If the workflow is interrupted, crashes, or fails, I retain this state file.
 
 **Sequential** (`->`):
 ```
 Running: Explore...  [In Progress]
-Result: Analysis complete
+Result: Analysis complete -> State Saved.
 Running: implement...  [In Progress]
-Result: Feature added
+Result: Feature added -> State Saved.
 ```
+
+### ⏪ Time-Travel Recovery (Resuming)
+
+If you ask me to **"resume"** a workflow:
+1. I read `./.orchestration/state.json`.
+2. I inject all previously captured variables back into the context.
+3. I skip all nodes marked as `completed` and instantly start executing from the exact node where it left off.
 
 **Parallel** (`||`):
 ```

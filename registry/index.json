@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "workflows": {
+    "tdd-autopilot": {
+      "author": "mbruhler",
+      "description": "Test-Driven Development automated loop. Writes tests, implements code, and refactors.",
+      "url": "https://raw.githubusercontent.com/mbruhler/claude-orchestration/main/examples/tdd-implementation.flow"
+    },
+    "security-audit": {
+      "author": "mbruhler",
+      "description": "Scans codebase for vulnerabilities, reviews findings, and generates a report.",
+      "url": "https://raw.githubusercontent.com/mbruhler/claude-orchestration/main/examples/security-audit.flow"
+    }
+  }
+}

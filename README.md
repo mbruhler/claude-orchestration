@@ -147,7 +147,7 @@ deploy:"Deploy to production"
 
 ---
 
-## ⏰ Autonomous Scheduling (NEW!)
+## ⏰ Autonomous Scheduling & Headless Mode
 
 With Claude Code's native `/loop` and Desktop Scheduling tools, your workflows don't have to be run manually. Turn your orchestrations into autonomous background workers!
 
@@ -176,6 +176,29 @@ When running in the background, you can't manually approve checkpoints. Use fall
 # Log to a file instead of blocking the terminal
 @approval(fallback=notify):"Verify system state"
 ```
+
+---
+
+## 🛡️ Reliability & Ecosystem (NEW!)
+
+### State Snapshots & Recovery
+Never lose workflow progress to a rate-limit, crash, or accidental exit. The plugin automatically saves variables and node status to `.orchestration/state.json`. 
+
+If your workflow dies at step 14 of 15, simply tell Claude:
+`"Resume the orchestration workflow"` 
+It will load the state, skip steps 1-13, inject the variables, and finish step 14.
+
+### Community Workflow Registry (The "NPM" for Agents)
+Stop writing workflows from scratch. Pull proven architectures from the community registry directly into your workspace.
+
+```bash
+# Pull from the official registry
+/orchestration:pull tdd-autopilot
+
+# Pull directly from any GitHub repo
+/orchestration:pull username/repo/my-workflow.flow
+```
+*(Want to publish yours? Submit a PR to `registry/index.json` in this repo!)*
 
 ---
 
