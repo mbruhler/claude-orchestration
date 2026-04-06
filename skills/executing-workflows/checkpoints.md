@@ -112,6 +112,18 @@ For confirming states or conditions:
 
 ## Checkpoint Patterns
 
+### Human-as-a-Tool (Reverse Delegation)
+
+Sometimes AI gets stuck (e.g., CAPTCHAs, MFA codes, physical security keys, or needing a subjective human opinion). Use `@ask-human` to orchestrate the user.
+
+```flow
+@ask-human:"Please enter the 6-digit MFA code sent to your phone":mfa_code ->
+general-purpose:"Login to the AWS console using {mfa_code}"
+```
+
+**How it works:**
+The workflow uses the `AskUserQuestion` tool with custom text input enabled. It displays your prompt, waits for the human to type an answer, captures that answer, binds it to the `{mfa_code}` variable, and resumes execution seamlessly.
+
 ### Headless & Scheduled Checkpoints
 
 When running workflows automatically via `@schedule(...)` or in headless environments, blocking for manual review causes the workflow to hang. You can configure fallback behaviors for checkpoints:

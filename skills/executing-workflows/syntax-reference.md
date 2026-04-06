@@ -165,6 +165,57 @@ general-purpose:"Save {summary} to daily_review.md"
 
 ---
 
+### Semantic Router: `route(...) =>`
+
+Evaluates unstructured data using a micro-LLM call and routes execution to the matching semantic branch. This replaces rigid text matching with "thinking" switch statements.
+
+**Syntax:**
+```flow
+route({variable}) => [
+  (if "semantic description 1") ~> agent1:"task1" ||
+  (if "semantic description 2") ~> agent2:"task2"
+]
+```
+
+**Example:**
+```flow
+general-purpose:"Read the latest user support ticket":ticket ->
+route({ticket}) => [
+  (if "UI, CSS, or layout bug") ~> frontend-agent:"Fix styling" ||
+  (if "Database, 500 error, crash") ~> backend-agent:"Fix server" ||
+  (if "Billing or account issue") ~> @ask-human:"Please handle billing"
+]
+```
+
+**Behavior:**
+- Uses a fast, cheap LLM call (like Haiku) to categorize the variable.
+- Only the branch that best matches the semantic intent will execute.
+
+---
+
+### Human-in-the-Loop: `@ask-human`
+
+Pauses execution to ask the user for manual input or action, capturing the result as a variable for the workflow to continue. Perfect for Reverse Delegation.
+
+**Syntax:**
+```flow
+@ask-human:"Prompt text":variable_name
+```
+
+**Example:**
+```flow
+Explore:"Scrape competitor pricing":data ~>
+(if captcha detected) @ask-human:"Please solve the Captcha on Chrome and paste the success token here":token ->
+general-purpose:"Resume scraping with {token}"
+```
+
+**Behavior:**
+- Orchestrator pauses and prompts the user in the terminal.
+- Captures the user's typed response and binds it to the specified variable.
+- Continues workflow execution automatically.
+
+---
+
 ## Agent Invocation
 
 ### Basic Invocation
@@ -634,7 +685,9 @@ expert-code-implementer:"Apply fixes: {fix_plan}"
 | Sequential | `->` | `agent1:"task" -> agent2:"task"` |
 | Parallel | `\|\|` | `agent1:"task" \|\| agent2:"task"` |
 | Conditional | `~>` | `agent:"task" ~> (if passed) next:"task"` |
+| Semantic Router | `route() =>` | `route({var}) => [(if "bug")~> fix]` |
 | Checkpoint | `@` | `@ checkpoint-name` |
+| Ask Human | `@ask-human` | `@ask-human:"Need MFA":code` |
 | Schedule | `@schedule()` | `@schedule("every 24h")` |
 | Grouping | `[...]` | `[agent1:"task" -> agent2:"task"]` |
 | Agent call | `agent:"instruction"` | `Explore:"Find files"` |

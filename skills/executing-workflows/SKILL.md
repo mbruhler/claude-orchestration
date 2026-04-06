@@ -345,12 +345,15 @@ See [examples/](examples/) for categorized workflow examples:
 - Interactive checkpoints
 - Error recovery prompts
 
-**Dry-run mode**:
-- Parse and validate only
-- Show execution plan
-- No actual agent execution
+**Dry-Run Unit Tests (.flow.test / Mock Mode)**:
+- Parse and validate only.
+- If you run a file with `.flow.test` extension or explicitly ask for a "dry-run with mocks":
+  1. I will look for a `mocks:` section in the YAML frontmatter of the workflow (where you define fake outputs for variables).
+  2. I will traverse the execution graph *without* invoking any actual agents.
+  3. Whenever a variable is needed for a conditional (`~>`) or a semantic router (`route() =>`), I will use your provided mocked data to decide the path.
+  4. I will output the exact execution path taken based on the mocks, allowing you to unit-test complex logic before running on production code.
 
-**Auto mode**:
+**Auto mode / Headless**:
 - Skip checkpoint prompts
 - Automatic error retry (up to 3 times)
 - Minimal user interaction

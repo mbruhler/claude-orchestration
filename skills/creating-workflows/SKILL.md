@@ -43,6 +43,7 @@ I'll determine if your workflow is:
 - **Sequential**: One step after another (`->`)
 - **Parallel**: Multiple tasks at once (`||`)
 - **Conditional**: Based on results (`~>`)
+- **Semantic Routing**: Dynamic switch statements based on LLM interpretation (`route() =>`)
 - **Scheduled**: Runs automatically in the background (`@schedule(...)`)
 - **Hybrid**: Combination of above
 

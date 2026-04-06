@@ -200,6 +200,28 @@ Stop writing workflows from scratch. Pull proven architectures from the communit
 ```
 *(Want to publish yours? Submit a PR to `registry/index.json` in this repo!)*
 
+### 🧠 Semantic Routing (LLM Switch Statements)
+Replace rigid text-matching conditions with dynamic, "thinking" trees.
+
+```flow
+general-purpose:"Read the latest user support ticket":ticket ->
+route({ticket}) => [
+  (if "UI, CSS, or layout bug") ~> frontend-agent:"Fix styling" ||
+  (if "Database, 500 error, crash") ~> backend-agent:"Fix server" 
+]
+```
+
+### 🧑‍💻 Human-as-a-Tool (Reverse Delegation)
+When Claude gets stuck (e.g. Needs an MFA code or Captcha solved), the AI can pause and orchestrate *you* to help it out, capturing your input as a variable.
+
+```flow
+@ask-human:"Please solve the Captcha and paste the success token here":token ->
+general-purpose:"Resume scraping using {token}"
+```
+
+### 🧪 Dry-Run Workflow Unit Tests (`.flow.test`)
+Test your massive orchestration files without making expensive API calls. Mock your variables in the YAML frontmatter and the CLI will visually trace the execution path based on the mocked data.
+
 ---
 
 ## Syntax Reference
