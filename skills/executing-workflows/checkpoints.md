@@ -112,6 +112,22 @@ For confirming states or conditions:
 
 ## Checkpoint Patterns
 
+### Headless & Scheduled Checkpoints
+
+When running workflows automatically via `@schedule(...)` or in headless environments, blocking for manual review causes the workflow to hang. You can configure fallback behaviors for checkpoints:
+
+```
+@review(fallback=skip):"Review generated code"
+@deploy-approval(fallback=abort):"Authorize production deployment"
+@verify(fallback=notify):"Verify system state before proceeding"
+```
+
+**Fallback Options**:
+- `skip`: Automatically bypasses the checkpoint and continues execution (default for scheduled tasks).
+- `abort`: Stops the workflow execution gracefully.
+- `notify`: Logs the checkpoint message to a file or system notification, then continues.
+- `auto-approve`: Instructs a lightweight LLM agent to review the output and approve/reject based on constraints before continuing.
+
 ### Pre-Deployment Gates
 
 Multi-stage approval before production:

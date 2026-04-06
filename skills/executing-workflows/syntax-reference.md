@@ -140,6 +140,31 @@ code-reviewer:"Review code":review ~>
 
 ---
 
+### Schedule Operator: `@schedule(...)`
+
+Runs the workflow automatically on a recurring schedule using Claude Code's native `/loop` or background desktop scheduler.
+
+**Syntax:**
+```flow
+@schedule("cron-expression" or "interval")
+```
+
+**Example:**
+```flow
+@schedule("every 24h")
+
+Explore:"Check recent GitHub PRs":prs ->
+general-purpose:"Draft code review summary from {prs}":summary ->
+general-purpose:"Save {summary} to daily_review.md"
+```
+
+**Behavior:**
+- Converts the workflow from a one-time run into an autonomous background task
+- When a schedule is detected, checkpoints automatically switch to headless mode (see Checkpoints guide)
+- Supported intervals depend on your Claude Code runner (e.g. `/loop` vs Desktop Scheduling)
+
+---
+
 ## Agent Invocation
 
 ### Basic Invocation
@@ -610,6 +635,7 @@ expert-code-implementer:"Apply fixes: {fix_plan}"
 | Parallel | `\|\|` | `agent1:"task" \|\| agent2:"task"` |
 | Conditional | `~>` | `agent:"task" ~> (if passed) next:"task"` |
 | Checkpoint | `@` | `@ checkpoint-name` |
+| Schedule | `@schedule()` | `@schedule("every 24h")` |
 | Grouping | `[...]` | `[agent1:"task" -> agent2:"task"]` |
 | Agent call | `agent:"instruction"` | `Explore:"Find files"` |
 | Capture output | `:variable` | `agent:"task":result` |

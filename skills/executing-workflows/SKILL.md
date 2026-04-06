@@ -192,6 +192,8 @@ If user chose "Show me first":
 
 If `TOTAL == 0`, skip cleanup silently (don't bother user).
 
+**Note for Scheduled/Headless runs:** If the workflow is running automatically via `@schedule`, the interactive cleanup prompt is suppressed. Temporary files will be left intact so they can be reused on the next run, saving computation time.
+
 ## Syntax Reference
 
 See [syntax-reference.md](syntax-reference.md) for complete syntax documentation.

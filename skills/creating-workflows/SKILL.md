@@ -43,6 +43,7 @@ I'll determine if your workflow is:
 - **Sequential**: One step after another (`->`)
 - **Parallel**: Multiple tasks at once (`||`)
 - **Conditional**: Based on results (`~>`)
+- **Scheduled**: Runs automatically in the background (`@schedule(...)`)
 - **Hybrid**: Combination of above
 
 ### 3. Designing the Workflow
@@ -268,6 +269,19 @@ general-purpose:"Run relevant tests":test_results
 $security-scanner:"Scan codebase for vulnerabilities":findings ->
 @security-review:"Review {findings}. Approve if no critical issues." ->
 (if approved)~> deploy:"Deploy to production"
+```
+
+**Autonomous Daily Review (Scheduled):**
+```flow
+# Background task that runs every morning
+@schedule("0 8 * * *")
+
+[
+  explore:"Find recent Git diffs":diffs ||
+  explore:"Check open PRs":prs
+] ->
+general-purpose:"Summarize code changes for morning standup using {diffs} and {prs}":standup ->
+general-purpose:"Save {standup} to daily_updates.md"
 ```
 
 ## Workflow Templates

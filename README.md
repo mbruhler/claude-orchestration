@@ -147,6 +147,38 @@ deploy:"Deploy to production"
 
 ---
 
+## ⏰ Autonomous Scheduling (NEW!)
+
+With Claude Code's native `/loop` and Desktop Scheduling tools, your workflows don't have to be run manually. Turn your orchestrations into autonomous background workers!
+
+### Syntax Integration
+Add the `@schedule` directive to the top of your `.flow` file to instruct Claude to run it repeatedly:
+
+```flow
+# Runs daily at 8:00 AM automatically
+@schedule("0 8 * * *")
+
+[
+  Explore:"Check recent GitHub PRs":prs ||
+  general-purpose:"Check open Sentry issues":bugs
+] ->
+general-purpose:"Draft daily standup summary from {prs} and {bugs}":summary ->
+general-purpose:"Append {summary} to standup_log.md"
+```
+
+### Unattended Checkpoints
+When running in the background, you can't manually approve checkpoints. Use fallback behaviors to keep things moving:
+
+```flow
+# Skip manual review if running headless/scheduled
+@review(fallback=skip):"Approve code changes?" 
+
+# Log to a file instead of blocking the terminal
+@approval(fallback=notify):"Verify system state"
+```
+
+---
+
 ## Syntax Reference
 
 | Syntax | Meaning | Example |
@@ -171,7 +203,29 @@ deploy:"Deploy to production"
 
 ## Examples
 
-### Reddit Startup Analyzer
+### Autonomous Social Scraper (Scheduled)
+```flow
+# Run every 6 hours in the background
+@schedule("every 6h")
+
+general-purpose:"Create Python PRAW script to fetch 10 r/startups posts.
+                 Return JSON with title, url, description":posts ->
+
+[
+  general-purpose:"Research competition for post {posts[0]}":a1 ||
+  general-purpose:"Research competition for post {posts[1]}":a2 
+] ->
+
+general-purpose:"Rate ideas (1-10) on competition, market, feasibility.
+                 Create markdown table":ratings ->
+
+# Unattended Checkpoint logs to file instead of hanging the scheduler
+@review(fallback=notify):"Review {ratings}. Ban any?" ->
+
+general-purpose:"Append top 3 opportunities summary to startup_leads.md"
+```
+
+### Reddit Startup Analyzer (Manual)
 ```flow
 general-purpose:"Create Python PRAW script to fetch 10 r/startups posts.
                  Return JSON with title, url, description":posts ->
