@@ -16,6 +16,9 @@ Check out my new SaaS VideoEffectVibe - turn prompts into editable, configurable
 
 ---
 
+## Contributing
+Feel free to open a PR and contribute to the project!
+
 ## Installation
 
 ### 1. Add Plugin Marketplace
