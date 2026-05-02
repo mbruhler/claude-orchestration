@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=mbruhler&project=claude-orchestration&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 # 🎭 Orchestration Plugin for Claude Code
 
 > _Like N8N in Claude Code_
