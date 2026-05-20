@@ -17,5 +17,12 @@
     "namespace": "orchestration:workflow-syntax-designer",
     "created": "2025-11-08",
     "usageCount": 0
+  },
+  "security-auditor": {
+    "file": "security-auditor.md",
+    "description": "Conduct comprehensive security audits following OWASP methodology",
+    "namespace": "orchestration:security-auditor",
+    "created": "2026-05-20",
+    "usageCount": 0
   }
 }
