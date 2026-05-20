@@ -326,7 +326,7 @@ All paths are relative to the plugin root directory.
 
 ## Temp Scripts Detection (CRITICAL)
 
-**READ THIS**: `/Users/mbroler/.claude/plugins/repos/orchestration/docs/TEMP-SCRIPTS-DETECTION-GUIDE.md`
+**READ THIS**: `${CLAUDE_PLUGIN_ROOT}/docs/TEMP-SCRIPTS-DETECTION-GUIDE.md`
 
 ### Automatic Detection
 
