@@ -1,0 +1,31 @@
+---
+name: security-audit
+description: Comprehensive security audit workflow for codebase
+---
+
+Workflow:
+
+security-scanner:"Scan for OWASP Top 10 vulnerabilities":vulns ->
+security-auditor:"Analyze vulnerabilities and rate severity":analysis ->
+vulnerability-fixer:"Fix critical and high severity issues":fixes ->
+security-reviewer:"Verify fixes and provide final report":report
+
+---
+
+## Security Audit Checklist
+
+- [ ] Input validation (SQL injection, XSS, command injection)
+- [ ] Authentication & authorization flows
+- [ ] Secrets management (no hardcoded credentials)
+- [ ] Dependency vulnerabilities (outdated packages)
+- [ ] Business logic flaws
+- [ ] Rate limiting and throttling
+- [ ] Data exposure (PII, sensitive logs)
+
+## Output
+
+severity: critical | high | medium | low
+issue: description
+file: affected file
+line: line number
+fix: recommended remediation
