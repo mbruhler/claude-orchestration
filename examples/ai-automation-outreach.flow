@@ -30,9 +30,9 @@ workflow: |
     general-purpose:"Create Python script for Apify Google Maps scraping:
     1. Install: pip install apify-client python-dotenv
     2. Load APIFY_API_KEY from environment
-    3. Use Apify actor 'compass/google-maps-scraper' with search query: first location from $LOCATIONS
-    4. Set maxCrawledPlacesPerSearch to $MAX_RESULTS
-    5. Extract: name, address, phone, website, email, rating, reviewsCount, categoryName, description, openingHours, url
+    3. Use Apify actor 'johnvc/google-maps-places-api' with searchTerms: [first location from $LOCATIONS]
+    4. Set maxResultsPerSearch to $MAX_RESULTS
+    5. Extract: title, address, phoneNumber, website, rating, ratingCount, type, description, openingHours
     6. Return JSON array
     7. Save as temp-scripts/apify_location_1.py and execute":location_1_results
     ||
